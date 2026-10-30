@@ -116,20 +116,22 @@ marked `noindex`. The original also answered `/ethos/` (trailing slash) like `/e
 three-line script at the top of `404.html` sends `/ethos/` to `/ethos` (and `/anything/` to
 `/anything`, which then shows the 404 page if it does not exist).
 
+## Changed from the original (30 October 2026)
+
+Four things that looked unintended on the original were fixed after the move:
+
+- `/contact`: the address `joyacamp85@gmail.com` is now a `mailto:` link (it was a relative link
+  that opened the not-found page).
+- `/events/joya-crystallized`: the large word under the gallery now reads "Crystallized" (it was
+  "Crytallized").
+- The six YouTube blocks on the 2019, 2020 and Global Eclipse pages now show each video's own
+  YouTube still (`assets/img/<page>/poster-*.webp`, 16:9, cropped to the box). They used to show
+  photos of a cabin in the mountains that came with the page builder's template.
+- The footer says © 2026 (it said © 2024).
+
 ## Kept from the original, for the owner to decide
 
-The site is reproduced as it was, including a few things that look unintended:
-
-- `/contact`: the address `joyacamp85@gmail.com` is linked as a relative address, not a
-  `mailto:` link, so clicking it opens the not-found page (the home page). Changing the `href`
-  to `mailto:joyacamp85@gmail.com` fixes it.
-- `/events/joya-crystallized`: the large word under the gallery reads "Crytallized".
 - `/events/burning-man-2023`: the title is "Burning man 2023" (lower-case "man").
-- The YouTube blocks on the 2019, 2020 and Global Eclipse pages show two posters that are not
-  Joya's: photos of a cabin in the mountains ("Aro Ha") that came with the page builder's
-  template. They are kept as they were (`assets/img/<page>/poster-*.webp`); the player itself is
-  the right video. Replacing them with stills from the videos would be a visible change.
-- The footer says © 2024.
 - The previous host's `robots.txt` listed a few AI crawlers, but in the same group as every
   other crawler, so they were not blocked; `robots.txt` keeps that.
 

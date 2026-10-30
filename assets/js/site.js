@@ -258,21 +258,6 @@
     items.forEach(function (i) { io.observe(i); });
   }
 
-  /* ---------- YouTube posters, laid out as the original's image loader did: the picture is
-     treated as 100:67, as wide as the box rounded up to a whole pixel, centred on the box's
-     height rounded up (and stretched to that shape, not cropped) ---------- */
-  function layoutPosters() {
-    document.querySelectorAll('.video__thumb').forEach(function (img) {
-      var box = img.parentElement.getBoundingClientRect();
-      var w = Math.ceil(box.width);
-      var h = w * 0.67;
-      img.style.width = w + 'px';
-      img.style.height = h + 'px';
-      img.style.top = (Math.ceil(box.height) - h) / 2 + 'px';
-      img.classList.add('is-placed');
-    });
-  }
-
   /* ---------- YouTube posters: click (or Enter / Space on the button) loads the player ---------- */
   document.querySelectorAll('[data-video]').forEach(function (box) {
     var start = function () {
@@ -325,7 +310,6 @@
   function layoutAll() {
     fitTitles();
     layoutMasonry();
-    layoutPosters();
     drawHighlights();
   }
 

@@ -558,18 +558,8 @@ pre code {
 .video { position: relative; height: 0; padding-bottom: var(--ratio); }
 .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video__overlay { position: absolute; inset: 0; overflow: hidden; cursor: pointer; }
-.video__thumb {
-  /* the original lays the poster out as a 100:67 picture, centred over the 16:9 box;
-     site.js sets the exact pixels (.is-placed), this is the same thing without it */
-  position: relative;
-  top: 50%;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 100 / 67;
-  object-fit: fill;
-  transform: translateY(-50%);
-}
-.video__thumb.is-placed { transform: none; aspect-ratio: auto; }
+/* the poster is the video's own YouTube still (16:9), covering the box */
+.video__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .video__play {
   position: absolute;
   top: 50%; left: 50%;
