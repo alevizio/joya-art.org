@@ -5,7 +5,7 @@
    2. Words        every sentence of the page, in Spanish and English
    3. Rules        totals, validation, links, the order email (no page needed: tested in
                    badge.test.js with `node --test assets/js/badge.test.js`)
-   4. Page         language switch, the three steps, summary, payment panel, send
+   4. Page         language switch, the two steps, summary, payment panel, send
 
    The page has no server. An order is the email the visitor sends from the last step,
    so nothing is stored anywhere until that email arrives.
@@ -34,8 +34,7 @@
     }
   };
   var METHOD_IDS = ['mercadopago', 'crypto', 'venmo', 'wise'];
-  var STYLE_IDS = ['lanyard', 'clip'];
-  var LAST_STEP = 3;
+  var LAST_STEP = 2;
   var LANGS = ['es', 'en'];
   var LANG_STORE = 'joya-badge-lang';
 
@@ -48,7 +47,33 @@
       'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las 100 placas ya están encargadas. Con tu aporte cubrimos las placas, las baterías y las carcasas.',
       'hero.cta': 'Quiero el mío',
       'progress.text': '{claimed} de {total} badges pedidos',
-      'hero.caption': 'Render del diseño',
+      'hero.caption': 'Modelo 3D de la placa real',
+      'alt.board': 'Modelo 3D de la placa del badge, con las 13 luces prendidas',
+      'viewer.flip': 'Dar vuelta',
+      'viewer.open': 'Ver las capas',
+      'viewer.close': 'Armarla de nuevo',
+      'viewer.hint': 'Arrastrala para girarla.',
+      'layer.leds': 'LEDs y capacitores',
+      'layer.fmask': 'Máscara negra',
+      'layer.fcu': 'Cobre de adelante',
+      'layer.core': 'Fibra de vidrio, 1 mm',
+      'layer.bcu': 'Cobre de atrás',
+      'layer.bmask': 'Máscara y textos',
+      'layer.parts': 'WiFi, cargador, USB-C',
+      'gallery.title': 'La placa, hoy',
+      'gallery.lead': 'Ya hay 5 placas armadas y andando. Estas fotos son de verdad. La carcasa la vamos a imprimir en 3D muy pronto.',
+      'gallery.on': 'Prendida, con la batería y el cable USB-C',
+      'gallery.flash': 'Cargándole el programa de las luces',
+      'alt.photoOn': 'La placa del badge vista de atrás, prendida, con la batería y el cable USB-C enchufados',
+      'alt.photoFlash': 'La placa del badge con un adaptador de programación conectado',
+      'video.title': 'Qué recibís',
+      'video.lead': 'Cada badge trae la placa armada, su batería, una carcasa impresa en 3D y un lanyard. El video muestra todo lo que tiene la placa.',
+      'video.label': 'Video: qué tiene la placa del badge',
+      'video.note': 'Animación 3D hecha con el diseño real de la placa.',
+      'remote.title': '12 animaciones, desde tu celular',
+      'remote.lead': 'Cada badge arma su propia red WiFi. Te conectás desde el celular y elegís la animación, los colores y el brillo.',
+      'remote.mode': 'El botón MODE de atrás también cambia de animación.',
+      'remote.try': 'Probalo: tocá una animación en el teléfono. Las luces corren con el mismo código que el badge.',
       'facts.title': 'Qué trae',
       'facts.leds': 'luces LED',
       'facts.anims': 'animaciones',
@@ -56,42 +81,30 @@
       'facts.usb': 'Batería recargable',
       'order.title': 'Armá tu pedido',
       'steps.label': 'Pasos',
-      'steps.1': 'Estilo',
-      'steps.2': 'Cantidad',
-      'steps.3': 'Aporte',
+      'steps.1': 'Cantidad',
+      'steps.2': 'Aporte',
       'nav.next': 'Seguir',
       'nav.back': 'Volver',
-      's1.title': '¿Cómo lo querés llevar?',
-      's1.lanyard.text': 'Colgado del cuello',
-      's1.clip.text': 'Prendido a la ropa',
-      's1.note': 'Imágenes: render del diseño. La carcasa final puede cambiar.',
-      's1.donate': 'Solo quiero donar',
-      'alt.lanyardFront': 'Badge con lanyard visto de frente, con las luces prendidas',
-      'alt.lanyardBack': 'Badge con lanyard visto de atrás',
-      'alt.clipFront': 'Badge con clip visto de frente, con las luces prendidas',
-      'alt.clipBack': 'Badge con clip visto de atrás',
-      's2.title': '¿Cuántos querés?',
+      's1.title': '¿Cuántos querés?',
+      's1.note': 'Cada badge trae su lanyard y se puede llevar prendido a la ropa o colgado: no hace falta elegir.',
       'tier.one.title': 'Un badge',
       'tier.one.text': 'Para vos',
       'tier.two.title': 'Uno para mí y uno para un amigo o amiga',
       'tier.two.text': 'Dos badges',
       'tier.donate.title': 'Solo donar',
       'tier.donate.text': 'Sin badge. Vos elegís el monto.',
-      's2.friend.legend': '¿Cómo lo lleva tu amigo o amiga?',
-      's2.amount.presets': 'Montos sugeridos',
-      's2.amount.label': 'Monto en USD',
+      's1.amount.presets': 'Montos sugeridos',
+      's1.amount.label': 'Monto en USD',
       'price.draft': 'provisorio',
-      's3.title': 'Hacé tu aporte',
+      's2.title': 'Hacé tu aporte',
       'sum.title': 'Tu pedido',
-      'sum.badge': 'Badge con {style}',
-      'sum.friend': 'Badge para tu amigo o amiga, con {style}',
+      'sum.badge': 'Un badge',
+      'sum.friend': 'Un badge para tu amigo o amiga',
       'sum.donation': 'Donación',
       'sum.total': 'Total',
       'sum.ars': 'Aprox. {ars}',
       'sum.arsPending': 'Monto en pesos: a confirmar',
       'sum.ref': 'Código',
-      'style.lanyard': 'lanyard',
-      'style.clip': 'clip',
       'f.name': 'Nombre',
       'f.email': 'Email',
       'pay.legend': '¿Cómo querés aportar?',
@@ -116,13 +129,11 @@
       'panel.ref': 'Poné este código en la nota del pago: {ref}',
       'copy': 'Copiar',
       'copied': 'Copiado',
-      's3.send': 'Mandar mi pedido por mail',
-      's3.sendNote': 'Después de pagar, mandanos este mail. Así sabemos qué badge es tuyo.',
+      's2.send': 'Mandar mi pedido por mail',
+      's2.sendNote': 'Después de pagar, mandanos este mail. Así sabemos qué badge es tuyo.',
       'sent.title': '¿No se abrió tu mail?',
       'sent.text': 'Copiá este texto y mandalo a {email}.',
-      'err.style': 'Elegí lanyard o clip.',
       'err.tier': 'Elegí una opción.',
-      'err.styleMissing': 'Te falta elegir lanyard o clip. Volvé al paso anterior.',
       'err.amount': 'Ingresá un monto de USD {min} o más.',
       'err.name': 'Decinos tu nombre.',
       'err.email': 'Revisá el email.',
@@ -136,7 +147,7 @@
       'notes.title': 'Para que sepas',
       'notes.1': 'Las 100 placas ya están encargadas.',
       'notes.2': 'Todavía no tenemos fecha de entrega. Te avisamos por mail cuándo y cómo lo recibís.',
-      'notes.3': 'Las imágenes de la carcasa son renders del diseño. La versión final puede cambiar.',
+      'notes.3': 'La carcasa todavía no está hecha: la vamos a imprimir en 3D.',
       'notes.4': '¿Dudas? Escribinos a'
     },
     en: {
@@ -146,7 +157,33 @@
       'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. The 100 boards are already ordered. Your contribution covers the boards, the batteries and the shells.',
       'hero.cta': 'I want mine',
       'progress.text': '{claimed} of {total} badges claimed',
-      'hero.caption': 'Design render',
+      'hero.caption': '3D model of the real board',
+      'alt.board': '3D model of the badge board with its 13 lights on',
+      'viewer.flip': 'Flip it',
+      'viewer.open': 'See the layers',
+      'viewer.close': 'Put it back together',
+      'viewer.hint': 'Drag to turn it.',
+      'layer.leds': 'LEDs and capacitors',
+      'layer.fmask': 'Black mask',
+      'layer.fcu': 'Front copper',
+      'layer.core': 'Fibreglass, 1 mm',
+      'layer.bcu': 'Back copper',
+      'layer.bmask': 'Mask and labels',
+      'layer.parts': 'WiFi, charger, USB-C',
+      'gallery.title': 'The board today',
+      'gallery.lead': 'Five boards are built and working. These are real photos. The shell will be 3D printed very soon.',
+      'gallery.on': 'Switched on, with its battery and USB-C cable',
+      'gallery.flash': 'Loading the light program onto it',
+      'alt.photoOn': 'The badge board from the back, switched on, with the battery and USB-C cable plugged in',
+      'alt.photoFlash': 'The badge board with a programming adapter clipped on',
+      'video.title': 'What you get',
+      'video.lead': 'Every badge comes with the assembled board, its battery, a 3D printed shell and a lanyard. The video shows everything on the board.',
+      'video.label': 'Video: what is on the badge board',
+      'video.note': '3D animation made from the real board design.',
+      'remote.title': '12 animations, from your phone',
+      'remote.lead': 'Every badge makes its own WiFi network. Join it from your phone and pick the animation, the colours and the brightness.',
+      'remote.mode': 'The MODE button on the back changes the animation too.',
+      'remote.try': 'Try it: tap an animation on the phone. The lights run on the same code as the badge.',
       'facts.title': 'What it has',
       'facts.leds': 'LED lights',
       'facts.anims': 'animations',
@@ -154,42 +191,30 @@
       'facts.usb': 'Rechargeable battery',
       'order.title': 'Build your order',
       'steps.label': 'Steps',
-      'steps.1': 'Style',
-      'steps.2': 'How many',
-      'steps.3': 'Contribution',
+      'steps.1': 'How many',
+      'steps.2': 'Contribution',
       'nav.next': 'Continue',
       'nav.back': 'Back',
-      's1.title': 'How do you want to wear it?',
-      's1.lanyard.text': 'Around your neck',
-      's1.clip.text': 'Pinned to your clothes',
-      's1.note': 'Pictures: design renders. The final shell may change.',
-      's1.donate': 'I just want to donate',
-      'alt.lanyardFront': 'Badge on a lanyard seen from the front, with the lights on',
-      'alt.lanyardBack': 'Badge on a lanyard seen from the back',
-      'alt.clipFront': 'Badge with a clip seen from the front, with the lights on',
-      'alt.clipBack': 'Badge with a clip seen from the back',
-      's2.title': 'How many do you want?',
+      's1.title': 'How many do you want?',
+      's1.note': 'Every badge comes with a lanyard and can be pinned to your clothes or hung around your neck: no need to choose.',
       'tier.one.title': 'One badge',
       'tier.one.text': 'For you',
       'tier.two.title': 'One for me and one for a friend',
       'tier.two.text': 'Two badges',
       'tier.donate.title': 'Just donate',
       'tier.donate.text': 'No badge. You choose the amount.',
-      's2.friend.legend': 'How will your friend wear it?',
-      's2.amount.presets': 'Suggested amounts',
-      's2.amount.label': 'Amount in USD',
+      's1.amount.presets': 'Suggested amounts',
+      's1.amount.label': 'Amount in USD',
       'price.draft': 'provisional',
-      's3.title': 'Make your contribution',
+      's2.title': 'Make your contribution',
       'sum.title': 'Your order',
-      'sum.badge': 'Badge with {style}',
-      'sum.friend': 'Badge for your friend, with {style}',
+      'sum.badge': 'One badge',
+      'sum.friend': 'A badge for your friend',
       'sum.donation': 'Donation',
       'sum.total': 'Total',
       'sum.ars': 'About {ars}',
       'sum.arsPending': 'Amount in pesos: to be confirmed',
       'sum.ref': 'Code',
-      'style.lanyard': 'lanyard',
-      'style.clip': 'clip',
       'f.name': 'Name',
       'f.email': 'Email',
       'pay.legend': 'How do you want to contribute?',
@@ -214,13 +239,11 @@
       'panel.ref': 'Put this code in the payment note: {ref}',
       'copy': 'Copy',
       'copied': 'Copied',
-      's3.send': 'Send my order by email',
-      's3.sendNote': 'After paying, send us this email. That is how we know which badge is yours.',
+      's2.send': 'Send my order by email',
+      's2.sendNote': 'After paying, send us this email. That is how we know which badge is yours.',
       'sent.title': 'Did your email app not open?',
       'sent.text': 'Copy this text and send it to {email}.',
-      'err.style': 'Choose lanyard or clip.',
       'err.tier': 'Choose an option.',
-      'err.styleMissing': 'You still need to choose lanyard or clip. Go back one step.',
       'err.amount': 'Enter an amount of USD {min} or more.',
       'err.name': 'Tell us your name.',
       'err.email': 'Check the email address.',
@@ -234,7 +257,7 @@
       'notes.title': 'Good to know',
       'notes.1': 'The 100 boards are already ordered.',
       'notes.2': 'We do not have a delivery date yet. We will email you when and how you get it.',
-      'notes.3': 'The shell pictures are design renders. The final version may change.',
+      'notes.3': 'The shell is not made yet: we will 3D print it.',
       'notes.4': 'Questions? Write to'
     }
   };
@@ -326,20 +349,14 @@
   /* What is wrong on a step: { field: key of the sentence to show }. Empty means go on. */
   function validateStep(step, order, config) {
     var errors = {};
-    var wantsBadge = order.tier === 'one' || order.tier === 'two';
     if (step === 1) {
-      if (STYLE_IDS.indexOf(order.style) === -1) errors.style = 'err.style';
-    }
-    if (step === 2) {
-      if (!wantsBadge && order.tier !== 'donate') errors.tier = 'err.tier';
-      else if (wantsBadge && STYLE_IDS.indexOf(order.style) === -1) errors.tier = 'err.styleMissing';
-      if (order.tier === 'two' && STYLE_IDS.indexOf(order.friendStyle) === -1) errors.friendStyle = 'err.style';
+      if (['one', 'two', 'donate'].indexOf(order.tier) === -1) errors.tier = 'err.tier';
       if (order.tier === 'donate') {
         var amount = parseAmount(order.amount);
         if (isNaN(amount) || amount < config.donationMin || amount > config.donationMax) errors.amount = 'err.amount';
       }
     }
-    if (step === 3) {
+    if (step === 2) {
       if (!String(order.name || '').trim()) errors.name = 'err.name';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(order.email || '').trim())) errors.email = 'err.email';
       if (!methodReady(config, order.method)) errors.method = 'err.method';
@@ -350,12 +367,8 @@
   /* What the order holds, one sentence per line, for the summary and the email. */
   function orderItems(order, lang) {
     var items = [];
-    if (order.tier === 'one' || order.tier === 'two') {
-      items.push(t(lang, 'sum.badge', { style: t(lang, 'style.' + order.style) }));
-    }
-    if (order.tier === 'two') {
-      items.push(t(lang, 'sum.friend', { style: t(lang, 'style.' + order.friendStyle) }));
-    }
+    if (order.tier === 'one' || order.tier === 'two') items.push(t(lang, 'sum.badge'));
+    if (order.tier === 'two') items.push(t(lang, 'sum.friend'));
     if (order.tier === 'donate') {
       items.push(t(lang, 'sum.donation'));
     }
@@ -390,7 +403,7 @@
   }
 
   var rules = {
-    CONFIG: CONFIG, WORDS: WORDS, METHOD_IDS: METHOD_IDS, STYLE_IDS: STYLE_IDS,
+    CONFIG: CONFIG, WORDS: WORDS, METHOD_IDS: METHOD_IDS,
     t: t, markedParts: markedParts, pickLang: pickLang, safeUrl: safeUrl, methodReady: methodReady, isDraft: isDraft,
     progress: progress,
     parseAmount: parseAmount, orderTotal: orderTotal, formatUsd: formatUsd, formatArs: formatArs,
@@ -408,7 +421,7 @@
     lang: 'es',
     errors: {},
     ref: newReference(window.crypto),
-    order: { style: '', tier: '', friendStyle: '', amount: '', name: '', email: '', method: '' }
+    order: { tier: '', amount: '', name: '', email: '', method: '' }
   };
   var sentBox = document.querySelector('[data-sent]');
   var panel = document.querySelector('[data-panel]');
@@ -572,6 +585,13 @@
     all('[data-i18n-marked]').forEach(setMarked);
     all('[data-i18n-alt]').forEach(function (node) { node.alt = say(node.getAttribute('data-i18n-alt')); });
     all('[data-i18n-label]').forEach(function (node) { node.setAttribute('aria-label', say(node.getAttribute('data-i18n-label'))); });
+    all('video[data-video-' + lang + ']').forEach(function (video) {
+      var src = video.getAttribute('data-video-' + lang);
+      if (video.getAttribute('src') === src) return;
+      video.setAttribute('poster', video.getAttribute('data-poster-' + lang));
+      video.setAttribute('src', src);
+      video.load();
+    });
     all('[data-lang]').forEach(function (button) {
       button.setAttribute('aria-pressed', String(button.getAttribute('data-lang') === lang));
     });
@@ -615,11 +635,6 @@
     if (!(name in state.order)) return;
     if (input.type === 'radio' && !input.checked) return;
     state.order[name] = input.value;
-    if (name === 'style' && !state.order.friendStyle) {
-      state.order.friendStyle = input.value;
-      var twin = form.querySelector('input[name="friendStyle"][value="' + input.value + '"]');
-      if (twin) twin.checked = true;
-    }
     delete state.errors[name];
     render();
   }
@@ -652,11 +667,6 @@
       }, function () { /* no clipboard permission: the text stays on screen to select by hand */ });
     } else if (target.getAttribute('data-go') === 'back') {
       goTo(state.step - 1);
-    } else if (target.getAttribute('data-go') === 'donate') {
-      var donate = form.querySelector('input[name="tier"][value="donate"]');
-      donate.checked = true;
-      readField(donate);
-      goTo(2);
     }
   });
 

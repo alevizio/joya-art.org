@@ -27,8 +27,7 @@ const filled = () => ({
   }
 });
 const validOrder = () => ({
-  style: 'clip', tier: 'two', friendStyle: 'lanyard', amount: '',
-  name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
+  tier: 'two', amount: '', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
 });
 
 test('settings as shipped: nobody can pay yet, so the page is a draft', () => {
@@ -85,39 +84,37 @@ test('totals and how they are written', () => {
 });
 
 test('empty state: each step says what is missing', () => {
-  const empty = { style: '', tier: '', friendStyle: '', amount: '', name: '', email: '', method: '' };
-  assert.deepEqual(rules.validateStep(1, empty, filled()), { style: 'err.style' });
-  assert.deepEqual(rules.validateStep(2, empty, filled()), { tier: 'err.tier' });
-  assert.deepEqual(rules.validateStep(3, empty, filled()), { name: 'err.name', email: 'err.email', method: 'err.method' });
+  const empty = { tier: '', amount: '', name: '', email: '', method: '' };
+  assert.deepEqual(rules.validateStep(1, empty, filled()), { tier: 'err.tier' });
+  assert.deepEqual(rules.validateStep(2, empty, filled()), { name: 'err.name', email: 'err.email', method: 'err.method' });
 });
 
 test('validation errors', () => {
   const config = filled();
-  assert.deepEqual(rules.validateStep(1, { style: 'necklace' }, config), { style: 'err.style' });
-  assert.deepEqual(rules.validateStep(2, { tier: 'one', style: '' }, config), { tier: 'err.styleMissing' });
-  assert.deepEqual(rules.validateStep(2, { tier: 'two', style: 'clip', friendStyle: '' }, config), { friendStyle: 'err.style' });
+  assert.deepEqual(rules.validateStep(1, { tier: 'three' }, config), { tier: 'err.tier' });
   for (const amount of ['', 'abc', '4.99', '10001']) {
-    assert.deepEqual(rules.validateStep(2, { tier: 'donate', amount }, config), { amount: 'err.amount' }, amount);
+    assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount }, config), { amount: 'err.amount' }, amount);
   }
-  assert.deepEqual(rules.validateStep(3, { ...validOrder(), name: '   ' }, config), { name: 'err.name' });
+  assert.deepEqual(rules.validateStep(2, { ...validOrder(), name: '   ' }, config), { name: 'err.name' });
   for (const email of ['ana', 'ana@', 'ana@example', 'a na@example.com']) {
-    assert.deepEqual(rules.validateStep(3, { ...validOrder(), email }, config), { email: 'err.email' }, email);
+    assert.deepEqual(rules.validateStep(2, { ...validOrder(), email }, config), { email: 'err.email' }, email);
   }
   /* a method that is not set up cannot be picked, even if the page is tampered with */
-  assert.deepEqual(rules.validateStep(3, validOrder(), rules.CONFIG), { method: 'err.method' });
+  assert.deepEqual(rules.validateStep(2, validOrder(), rules.CONFIG), { method: 'err.method' });
 });
 
 test('valid submission: every step passes and the email holds the order', () => {
   const config = filled();
   const order = validOrder();
-  for (const step of [1, 2, 3]) assert.deepEqual(rules.validateStep(step, order, config), {}, 'step ' + step);
-  assert.deepEqual(rules.validateStep(2, { tier: 'donate', amount: '5' }, config), {});
-  assert.deepEqual(rules.validateStep(2, { tier: 'donate', amount: '10000' }, config), {});
+  for (const step of [1, 2]) assert.deepEqual(rules.validateStep(step, order, config), {}, 'step ' + step);
+  assert.deepEqual(rules.validateStep(1, { tier: 'one' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '5' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '10000' }, config), {});
 
   const text = rules.orderText(order, config, 'en', 'JOYA-TEST0001');
   assert.deepEqual(text.split('\n'), [
-    'Badge with clip',
-    'Badge for your friend, with lanyard',
+    'One badge',
+    'A badge for your friend',
     'Total: ' + rules.formatUsd(config.priceTwo),
     'Payment method: Venmo',
     'Code: JOYA-TEST0001',
@@ -192,7 +189,7 @@ test('a marked sentence is written in badge.html as the script writes it, with t
 test('badge.html matches the settings', () => {
   assert.deepEqual(attrValues('data-preset').map(Number), rules.CONFIG.donationPresets);
   assert.deepEqual(attrValues('data-method'), rules.METHOD_IDS);
-  for (const name of ['style', 'tier', 'friendStyle', 'amount', 'name', 'email', 'method']) {
+  for (const name of ['tier', 'amount', 'name', 'email', 'method']) {
     assert.ok(html.includes('name="' + name + '"'), 'no input named ' + name);
     assert.ok(html.includes('data-error="' + name + '"'), 'no error box for ' + name);
     assert.ok(html.includes('data-field="' + name + '"'), 'no focus target for ' + name);
@@ -202,6 +199,12 @@ test('badge.html matches the settings', () => {
   const run = rules.progress(rules.CONFIG);
   assert.ok(html.includes('data-progress-text>' + rules.t('es', 'progress.text', run) + '<'), 'progress text differs from the settings');
   assert.ok(html.includes('<progress class="bdg-progress__bar" max="' + run.total + '" value="' + run.claimed + '"'), 'progress bar differs from the settings');
+});
+
+test('every file badge.html points to is in the repository', () => {
+  const refs = new Set(Array.from(html.matchAll(/(\/assets\/[^"\s,?]+)/g), (m) => m[1]));
+  assert.ok(refs.size > 20);
+  for (const ref of refs) assert.ok(fs.existsSync(path.join(root, ref)), 'missing file: ' + ref);
 });
 
 test('sitemap.xml lists /badge exactly when the page may be indexed', () => {
