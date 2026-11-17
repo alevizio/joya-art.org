@@ -25,9 +25,19 @@
   --bdg-form-w: 46rem;                              /* widest the order form gets */
   --bdg-short-w: 12rem;                             /* the amount box */
   --bdg-num-size: clamp(1.8rem, 4vw, 3rem);         /* the big words in the facts row */
-  --bdg-bar-h: .75rem;                              /* the progress bar */
+  --bdg-bar-h: 1rem;                                /* the progress bar */
   --bdg-warn: hsl(45 100% 85%);                     /* draft banner, crypto warning: black text on it */
   --bdg-error: hsl(0 70% 38%);
+  /* The colours the badge's LEDs show in the renders. Used for glows and the progress bar only, never for text. */
+  --bdg-led-pink: hsl(330 100% 62%);
+  --bdg-led-violet: hsl(268 90% 64%);
+  --bdg-led-amber: hsl(42 100% 62%);
+  --bdg-led-warm: hsl(30 100% 88%);
+  --bdg-led-strip: linear-gradient(90deg, var(--bdg-led-pink), var(--bdg-led-violet) 50%, var(--bdg-led-amber));
+  --bdg-render-bg: #1b1e26;                         /* the corners of the shell renders */
+  --bdg-hl-yellow: rgb(245 229 0);                  /* the hand drawn marks: same colours as on the home page */
+  --bdg-hl-pink: rgb(255 0 134);
+  --bdg-dot: 1.375rem;                           /* the round marker of a row you can pick */
 }
 /* These two follow the theme of the section they are in. */
 .page-badge .section {
@@ -132,28 +142,75 @@
 }
 .bdg-kicker { margin: 0; font-family: var(--font-heading); }
 .bdg-hero__title { margin: var(--bdg-space-2) 0; }
+/* The marks site.js draws behind two words of the title. The marked word turns black once its
+   yellow marker is drawn (site.js sets data-drawn), so it is never black on the black page.
+   The marker's square ends reach half an em past the word: the margin keeps the white letters
+   next to it off the yellow. */
+.bdg-hero__title .hl[data-shape="marker"] { --hl-color: var(--bdg-hl-yellow); --hl-width: 1em; margin-inline: .3em; }
+.bdg-hero__title .hl[data-shape="marker"][data-drawn] { color: var(--black); transition: color .2s .25s; }
+.bdg-hero__title .hl[data-shape="underlineCurve"] { --hl-color: var(--bdg-hl-pink); --hl-width: .1em; }
+@media (prefers-reduced-motion: reduce) {
+  .bdg-hero__title .hl[data-shape="marker"][data-drawn] { transition: none; }
+}
 .bdg-hero__text .bdg-btn { margin-top: var(--bdg-space-2); }
-/* How many badges are spoken for. The fill is the text colour, the track is the page. */
+/* How many badges are spoken for, drawn as a strip of 100 LEDs: one square per badge.
+   Unclaimed squares are dim, claimed ones light up in the badge's colours. */
 .bdg-progress { margin: var(--bdg-space-3) 0 var(--bdg-space-1); }
 .bdg-progress__text { margin: 0 0 var(--bdg-space-1); font-family: var(--font-heading); }
 .bdg-progress__bar {
   display: block;
-  box-sizing: border-box;
   width: 100%;
   height: var(--bdg-bar-h);
-  border: var(--bdg-line-w) solid var(--text);
+  border: 0;
   border-radius: 0;
-  background: transparent;
-  color: var(--text);
+  --bdg-unlit: color-mix(in srgb, var(--text) 16%, transparent);
+  background: var(--bdg-unlit);
+  color: var(--bdg-led-pink);
   -webkit-appearance: none;
   appearance: none;
+  /* gaps between the 100 squares */
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
+  mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
 }
-.bdg-progress__bar::-webkit-progress-bar { background: transparent; }
-.bdg-progress__bar::-webkit-progress-value { background: var(--text); }
-.bdg-progress__bar::-moz-progress-bar { background: var(--text); }
-.bdg-hero__figure { margin: 0; }
-.bdg-hero__figure img { width: 100%; height: auto; }
-.bdg-hero__figure figcaption { margin-top: var(--bdg-space-1); color: var(--bdg-muted); }
+.bdg-progress__bar::-webkit-progress-bar { background: var(--bdg-unlit); }
+.bdg-progress__bar::-webkit-progress-value { background: var(--bdg-led-strip); }
+.bdg-progress__bar::-moz-progress-bar { background: var(--bdg-led-strip); }
+
+/* The render sits on the night page: its square edges fade out and the LEDs' colour spills around it. */
+.bdg-hero__figure { position: relative; isolation: isolate; margin: 0; }
+.bdg-hero__figure::before {
+  content: "";
+  position: absolute;
+  inset: -4% -4% 4%;
+  z-index: -1;
+  background:
+    radial-gradient(closest-side at 36% 40%, var(--bdg-led-pink), transparent),
+    radial-gradient(closest-side at 66% 44%, var(--bdg-led-violet), transparent),
+    radial-gradient(closest-side at 50% 68%, var(--bdg-led-amber), transparent);
+  filter: blur(56px);
+  animation: bdg-breathe 6s ease-in-out infinite alternate;
+}
+.bdg-hero__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-mask: radial-gradient(circle, #000 40%, rgb(0 0 0 / .55) 54%, transparent 70%);
+  mask: radial-gradient(circle, #000 40%, rgb(0 0 0 / .55) 54%, transparent 70%);
+}
+.bdg-hero__figure figcaption { margin-top: var(--bdg-space-1); color: var(--bdg-muted); text-align: center; }
+@keyframes bdg-breathe {
+  from { opacity: .3;  transform: scale(.95); }
+  to   { opacity: .5;  transform: scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bdg-hero__figure::before { animation: none; }
+}
+/* Phones: the glowing badge comes first. Its faded edges are empty, so it is pulled in tight. */
+@media (max-width: 767px) {
+  .bdg-hero { gap: 0; }
+  .bdg-hero__figure { order: -1; width: min(100%, 24rem); margin: -1.5rem auto 0; }
+  .bdg-hero__figure figcaption { margin-top: -1.5rem; }
+}
 @media (min-width: 768px) {
   .bdg-hero { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--bdg-space-5); }
 }
@@ -173,16 +230,32 @@
 }
 .bdg-lang__btn[aria-pressed="true"] { background: var(--text); color: var(--bg); }
 
+/* The hero and the facts read as one night band: a hairline between them, not a new section. */
+.page-badge .section--first + .theme-black > .section__wrap { padding-top: 0; }
 .bdg-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--bdg-space-4) var(--bdg-space-3);
   margin: 0;
-  padding: 0;
+  padding: var(--bdg-space-4) 0 0;
+  border-top: var(--bdg-line-w) solid var(--bdg-line);
   list-style: none;
 }
 .bdg-fact { display: flex; flex-direction: column; gap: var(--bdg-space-1); line-height: 1.4; }
 .bdg-fact__num { font-family: var(--font-heading); font-size: var(--bdg-num-size); line-height: 1; }
+/* one lit LED over each fact, each in another of the badge's colours */
+.bdg-fact::before {
+  content: "";
+  width: .75rem;
+  height: .75rem;
+  margin-bottom: var(--bdg-space-1);
+  background: var(--led);
+  box-shadow: 0 0 .75rem .2rem color-mix(in srgb, var(--led) 60%, transparent);
+}
+.bdg-fact:nth-child(1) { --led: var(--bdg-led-pink); }
+.bdg-fact:nth-child(2) { --led: var(--bdg-led-amber); }
+.bdg-fact:nth-child(3) { --led: var(--bdg-led-violet); }
+.bdg-fact:nth-child(4) { --led: var(--bdg-led-warm); }
 @media (min-width: 768px) {
   .bdg-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -219,6 +292,18 @@
 }
 .bdg-steps__item[aria-current="step"] { color: var(--text); font-weight: 700; }
 .bdg-steps__item[aria-current="step"] .bdg-steps__n { background: var(--text); color: var(--bg); border-color: var(--text); }
+/* steps already done: full colour, so the row reads as progress */
+.bdg-steps__item:has(~ [aria-current="step"]) { color: var(--text); }
+/* a short rule joins each step to the one before it, where the row has room for it */
+@media (min-width: 480px) {
+  .bdg-steps__item + .bdg-steps__item::before {
+    content: "";
+    width: var(--bdg-space-3);
+    height: var(--bdg-line-w);
+    margin-right: var(--bdg-space-1);
+    background: currentColor;
+  }
+}
 
 .bdg-step__title { margin: 0 0 var(--bdg-space-3); outline: none; }
 
@@ -244,6 +329,10 @@
   border: var(--bdg-line-w) solid var(--bdg-line);
   line-height: 1.4;
   cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+}
+@media (hover: hover) {
+  .bdg-choice:not(:has(:disabled)):hover { border-color: var(--text); }
 }
 .bdg-choice--row {
   flex-direction: row;
@@ -259,18 +348,66 @@
 }
 .bdg-choice:has(:focus-visible) { outline: 2px solid currentColor; outline-offset: 4px; }
 .bdg-choice:has(:disabled) { color: var(--bdg-muted); cursor: not-allowed; }
+
+/* A round marker at the start of each row, filled when picked, so a row reads as something to tap. */
+.bdg-choice--row::before {
+  content: "";
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: var(--bdg-dot);
+  height: var(--bdg-dot);
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+.bdg-choice--row:has(:checked)::before {
+  background: radial-gradient(circle, currentColor 0 34%, transparent 38%);
+}
+.bdg-choice--row:has(:disabled)::before { border-style: dashed; }
+.bdg-choice--row .bdg-choice__body { flex: 1 1 auto; }
+
+/* The two style cards: both pictures run to the card's edges on the renders' own dark grey,
+   and a picked card gets a check in its corner. */
+.bdg-choices .bdg-choice { padding: 0 0 var(--bdg-space-2); overflow: hidden; }
+.bdg-choices .bdg-choice > :not(input, .bdg-choice__pics) { padding: 0 var(--bdg-space-2); }
 .bdg-choice__pics {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--bdg-space-1);
+  gap: 2px;
   margin-bottom: var(--bdg-space-1);
+  background: var(--bdg-render-bg);
 }
-.bdg-choice__pics img { width: 100%; height: auto; }
+.bdg-choice__pics img { display: block; width: 100%; height: auto; }
+.bdg-choices .bdg-choice::after {
+  content: "";
+  position: absolute;
+  top: var(--bdg-space-1);
+  right: var(--bdg-space-1);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--text) no-repeat center / 1rem url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3C/svg%3E");
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity .15s, transform .15s;
+}
+.bdg-choices .bdg-choice:has(:checked)::after { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .bdg-choice, .bdg-choices .bdg-choice::after { transition: none; }
+}
+
 .bdg-choice__body { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
 .bdg-choice__title { font-family: var(--font-heading); }
 .bdg-choice__text { color: var(--bdg-muted); }
-.bdg-choice__side { flex: 0 0 auto; font-family: var(--font-heading); text-align: right; }
-.bdg-choice__side--soon { font-family: var(--font-body); color: var(--bdg-muted); }
+.bdg-choice__side { flex: 0 0 auto; font-family: var(--font-heading); font-size: 1.25em; text-align: right; }
+.bdg-choice__side--soon { font-family: var(--font-body); font-size: 1em; color: var(--bdg-muted); }
+/* In the two-column payment grid there is no room beside the text: the tag goes under it. */
+.bdg-rows--two .bdg-choice--row:has(.bdg-choice__side--soon:not([hidden])) { flex-wrap: wrap; row-gap: 0; }
+.bdg-rows--two .bdg-choice__side--soon {
+  flex-basis: 100%;
+  padding-left: calc(var(--bdg-dot) + var(--bdg-space-2));
+  font-size: .875em;
+  text-align: left;
+}
 
 .bdg-sub {
   min-width: 0;

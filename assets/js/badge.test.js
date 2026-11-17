@@ -162,7 +162,7 @@ test('Spanish and English hold the same sentences, none empty', () => {
 });
 
 test('badge.html asks only for sentences that exist, and starts in Spanish', () => {
-  const keys = [...attrValues('data-i18n'), ...attrValues('data-i18n-alt'), ...attrValues('data-i18n-label')];
+  const keys = [...attrValues('data-i18n'), ...attrValues('data-i18n-marked'), ...attrValues('data-i18n-alt'), ...attrValues('data-i18n-label')];
   assert.ok(keys.length > 40);
   for (const key of keys) assert.ok(key in rules.WORDS.es, 'missing sentence: ' + key);
   for (const m of html.matchAll(/data-i18n="([^"]+)"[^>]*>([^<]*)</g)) {
@@ -171,6 +171,22 @@ test('badge.html asks only for sentences that exist, and starts in Spanish', () 
   for (const m of html.matchAll(/alt="([^"]*)" data-i18n-alt="([^"]+)"/g)) {
     assert.equal(m[1], rules.WORDS.es[m[2]], 'alt text differs: ' + m[2]);
   }
+});
+
+test('a marked sentence is written in badge.html as the script writes it, with the same marks in both languages', () => {
+  const marked = Array.from(html.matchAll(/data-i18n-marked="([^"]+)">(.*?)<\/h1>/g));
+  assert.equal(marked.length, attrValues('data-i18n-marked').length);
+  for (const [, key, inner] of marked) {
+    const expected = rules.markedParts(rules.WORDS.es[key])
+      .map((p) => (p.shape ? '<span class="hl" data-shape="' + p.shape + '" data-draw>' + p.text + '</span>' : p.text)).join('');
+    assert.equal(inner, expected, 'page text differs from the Spanish sentence: ' + key);
+    const shapes = (lang) => rules.markedParts(rules.WORDS[lang][key]).map((p) => p.shape).filter(Boolean);
+    assert.deepEqual(shapes('en'), shapes('es'), 'marks differ between languages: ' + key);
+  }
+  assert.deepEqual(rules.markedParts('Wear the *light* of _Joya_'), [
+    { text: 'Wear the ', shape: '' }, { text: 'light', shape: 'marker' }, { text: ' of ', shape: '' }, { text: 'Joya', shape: 'underlineCurve' },
+  ]);
+  assert.deepEqual(rules.markedParts('no marks'), [{ text: 'no marks', shape: '' }]);
 });
 
 test('badge.html matches the settings', () => {

@@ -44,7 +44,7 @@
     es: {
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Borrador: los medios de pago todavía no están confirmados.',
-      'hero.title': 'Llevá la luz de Joya puesta',
+      'hero.title': 'Llevá la *luz* de _Joya_ puesta',
       'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las 100 placas ya están encargadas. Con tu aporte cubrimos las placas, las baterías y las carcasas.',
       'hero.cta': 'Quiero el mío',
       'progress.text': '{claimed} de {total} badges pedidos',
@@ -142,7 +142,7 @@
     en: {
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Draft: payment methods are not confirmed yet.',
-      'hero.title': 'Wear the light of Joya',
+      'hero.title': 'Wear the *light* of _Joya_',
       'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. The 100 boards are already ordered. Your contribution covers the boards, the batteries and the shells.',
       'hero.cta': 'I want mine',
       'progress.text': '{claimed} of {total} badges claimed',
@@ -248,6 +248,21 @@
     return text.replace(/\{(\w+)\}/g, function (whole, name) {
       return vars && vars[name] !== undefined ? String(vars[name]) : whole;
     });
+  }
+
+  /* A sentence with hand drawn marks, split into pieces: *word* gets the marker, _word_ the
+     curved underline (the shapes site.js draws). Pieces without a mark have shape ''. */
+  var MARKS = { '*': 'marker', '_': 'underlineCurve' };
+  function markedParts(text) {
+    var parts = [];
+    var last = 0;
+    text.replace(/([*_])([^*_]+)\1/g, function (whole, mark, word, at) {
+      if (at > last) parts.push({ text: text.slice(last, at), shape: '' });
+      parts.push({ text: word, shape: MARKS[mark] });
+      last = at + whole.length;
+    });
+    if (last < text.length) parts.push({ text: text.slice(last), shape: '' });
+    return parts;
   }
 
   function pickLang(fromQuery, fromStore) {
@@ -376,7 +391,7 @@
 
   var rules = {
     CONFIG: CONFIG, WORDS: WORDS, METHOD_IDS: METHOD_IDS, STYLE_IDS: STYLE_IDS,
-    t: t, pickLang: pickLang, safeUrl: safeUrl, methodReady: methodReady, isDraft: isDraft,
+    t: t, markedParts: markedParts, pickLang: pickLang, safeUrl: safeUrl, methodReady: methodReady, isDraft: isDraft,
     progress: progress,
     parseAmount: parseAmount, orderTotal: orderTotal, formatUsd: formatUsd, formatArs: formatArs,
     validateStep: validateStep, orderItems: orderItems, venmoUrl: venmoUrl,
@@ -406,6 +421,24 @@
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+  }
+
+  /* Writes a marked sentence as text plus .hl spans, then asks site.js to draw the marks again
+     (it redraws on resize). Left alone when the words already match, so the first load does not
+     restart the drawing. */
+  function setMarked(node) {
+    var parts = markedParts(say(node.getAttribute('data-i18n-marked')));
+    var plain = parts.map(function (part) { return part.text; }).join('');
+    if (node.textContent === plain) return;
+    node.textContent = '';
+    parts.forEach(function (part) {
+      if (!part.shape) { node.appendChild(document.createTextNode(part.text)); return; }
+      var span = el('span', 'hl', part.text);
+      span.setAttribute('data-shape', part.shape);
+      span.setAttribute('data-draw', '');
+      node.appendChild(span);
+    });
+    window.dispatchEvent(new Event('resize'));
   }
 
   function storedLang() {
@@ -536,6 +569,7 @@
     document.documentElement.lang = lang;
     document.title = say('meta.title');
     all('[data-i18n]').forEach(function (node) { node.textContent = say(node.getAttribute('data-i18n')); });
+    all('[data-i18n-marked]').forEach(setMarked);
     all('[data-i18n-alt]').forEach(function (node) { node.alt = say(node.getAttribute('data-i18n-alt')); });
     all('[data-i18n-label]').forEach(function (node) { node.setAttribute('aria-label', say(node.getAttribute('data-i18n-label'))); });
     all('[data-lang]').forEach(function (button) {
