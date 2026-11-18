@@ -36,6 +36,10 @@
       <div class="header__inner">
         <a class="header__logo" href="/"><img src="/assets/img/logo.png" alt="Joya" width="89" height="70"></a>
         <nav class="header__nav" aria-label="Main"><a href="/">Home</a><a href="/events">Events</a><a href="/music">Music</a><a href="/ethos">Ethos</a><a href="/badge" aria-current="page">Badge</a><a href="/contact">Contact</a></nav>
+        <div class="bdg-lang" role="group" aria-label="Idioma / Language">
+          <button class="bdg-lang__btn" type="button" data-lang="es" lang="es" aria-pressed="true">ES</button>
+          <button class="bdg-lang__btn" type="button" data-lang="en" lang="en" aria-pressed="false">EN</button>
+        </div>
         <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open Menu"><span class="burger__box"><span class="burger__bun"></span><span class="burger__bun"></span></span></button>
       </div>
     </div>
@@ -51,13 +55,7 @@
     <p class="bdg-draft" data-draft data-i18n="draft.banner">Borrador: los medios de pago todavía no están confirmados.</p>
     <div class="bdg-hero">
       <div class="bdg-hero__text">
-        <div class="bdg-hero__top">
-          <p class="bdg-kicker t-small">Joya Badge</p>
-          <div class="bdg-lang" role="group" aria-label="Idioma / Language">
-            <button class="bdg-lang__btn" type="button" data-lang="es" lang="es" aria-pressed="true">ES</button>
-            <button class="bdg-lang__btn" type="button" data-lang="en" lang="en" aria-pressed="false">EN</button>
-          </div>
-        </div>
+        <p class="bdg-kicker t-small">Joya Badge</p>
         <div class="text bdg-hero__titlebox"><h1 class="bdg-hero__title" data-i18n-marked="hero.title">Llevá la <span class="hl" data-shape="marker" data-draw>luz</span> de <span class="hl" data-shape="underlineCurve" data-draw>Joya</span> puesta</h1></div>
         <p class="t-large" data-i18n="hero.lead">Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las 100 placas ya están encargadas. Con tu aporte cubrimos las placas, las baterías y las carcasas.</p>
         <div class="bdg-progress">
@@ -109,16 +107,46 @@
       <h2 class="bdg-gallery__title" data-i18n="gallery.title">La placa, hoy</h2>
       <p class="t-large" data-i18n="gallery.lead">Ya hay 5 placas armadas y andando. Estas fotos son de verdad. La carcasa la vamos a imprimir en 3D muy pronto.</p>
       <ul class="bdg-gallery__list">
-        <li class="bdg-gallery__item">
+        <li class="bdg-gallery__item bdg-gallery__item--wide bdg-photo--boards">
           <figure>
-            <a href="/assets/img/badge/photo-on-1200w.webp"><img src="/assets/img/badge/photo-on-900w.webp" srcset="/assets/img/badge/photo-on-600w.webp 600w, /assets/img/badge/photo-on-900w.webp 900w, /assets/img/badge/photo-on-1200w.webp 1200w" sizes="(min-width: 768px) 22rem, 88vw" width="1200" height="1050" alt="La placa del badge vista de atrás, prendida, con la batería y el cable USB-C enchufados" data-i18n-alt="alt.photoOn" loading="lazy" decoding="async"></a>
+            <a href="/assets/img/badge/photo-boards-1600w.webp"><img src="/assets/img/badge/photo-boards-1200w.webp" srcset="/assets/img/badge/photo-boards-800w.webp 800w, /assets/img/badge/photo-boards-1200w.webp 1200w, /assets/img/badge/photo-boards-1600w.webp 1600w" sizes="(min-width: 1024px) 60vw, 88vw" width="1600" height="2133" alt="Cinco placas del badge sobre un escritorio, todavía en el panel de fábrica" data-i18n-alt="alt.photoBoards" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.boards">Las 5 placas, todavía en el panel</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--on">
+          <figure>
+            <a href="/assets/img/badge/photo-on-1200w.webp"><img src="/assets/img/badge/photo-on-900w.webp" srcset="/assets/img/badge/photo-on-600w.webp 600w, /assets/img/badge/photo-on-900w.webp 900w, /assets/img/badge/photo-on-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1050" alt="La placa del badge vista de atrás, prendida, con la batería y el cable USB-C enchufados" data-i18n-alt="alt.photoOn" loading="lazy" decoding="async"></a>
             <figcaption class="t-small" data-i18n="gallery.on">Prendida, con la batería y el cable USB-C</figcaption>
           </figure>
         </li>
-        <li class="bdg-gallery__item">
+        <li class="bdg-gallery__item bdg-photo--dark">
           <figure>
-            <a href="/assets/img/badge/photo-flash-1200w.webp"><img src="/assets/img/badge/photo-flash-900w.webp" srcset="/assets/img/badge/photo-flash-600w.webp 600w, /assets/img/badge/photo-flash-900w.webp 900w, /assets/img/badge/photo-flash-1200w.webp 1200w" sizes="(min-width: 768px) 22rem, 88vw" width="1200" height="1050" alt="La placa del badge con un adaptador de programación conectado" data-i18n-alt="alt.photoFlash" loading="lazy" decoding="async"></a>
+            <a href="/assets/img/badge/photo-dark-1600w.webp"><img src="/assets/img/badge/photo-dark-800w.webp" srcset="/assets/img/badge/photo-dark-800w.webp 800w, /assets/img/badge/photo-dark-1200w.webp 1200w, /assets/img/badge/photo-dark-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="Tres placas del badge prendidas en un cuarto oscuro, con las luces en verde, celeste y violeta" data-i18n-alt="alt.photoDark" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.dark">Tres prendidas a oscuras</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--panel">
+          <figure>
+            <a href="/assets/img/badge/photo-panel-1600w.webp"><img src="/assets/img/badge/photo-panel-800w.webp" srcset="/assets/img/badge/photo-panel-800w.webp 800w, /assets/img/badge/photo-panel-1200w.webp 1200w, /assets/img/badge/photo-panel-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="La placa del badge con sus 13 LEDs, parada dentro del panel, con una batería adelante" data-i18n-alt="alt.photoPanel" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.panel">Una placa en su panel, con la batería al lado</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--stand">
+          <figure>
+            <a href="/assets/img/badge/photo-stand-1600w.webp"><img src="/assets/img/badge/photo-stand-800w.webp" srcset="/assets/img/badge/photo-stand-800w.webp 800w, /assets/img/badge/photo-stand-1200w.webp 1200w, /assets/img/badge/photo-stand-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="La placa del badge sola, parada sobre la mesa, con la antena y la batería conectadas" data-i18n-alt="alt.photoStand" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.stand">Ya fuera del panel, con su antena y la batería</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--flash">
+          <figure>
+            <a href="/assets/img/badge/photo-flash-1200w.webp"><img src="/assets/img/badge/photo-flash-900w.webp" srcset="/assets/img/badge/photo-flash-600w.webp 600w, /assets/img/badge/photo-flash-900w.webp 900w, /assets/img/badge/photo-flash-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1050" alt="La placa del badge con un adaptador de programación conectado" data-i18n-alt="alt.photoFlash" loading="lazy" decoding="async"></a>
             <figcaption class="t-small" data-i18n="gallery.flash">Cargándole el programa de las luces</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-gallery__item--wide-lg bdg-photo--rig">
+          <figure>
+            <a href="/assets/img/badge/photo-rig-1600w.webp"><img src="/assets/img/badge/photo-rig-1200w.webp" srcset="/assets/img/badge/photo-rig-800w.webp 800w, /assets/img/badge/photo-rig-1200w.webp 1200w, /assets/img/badge/photo-rig-1600w.webp 1600w" sizes="(min-width: 1024px) 60vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="Una placa en la pinza roja de programación al lado de la computadora, y otras placas esperando en sus paneles" data-i18n-alt="alt.photoRig" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.rig">Una en la pinza de programación y las demás esperando su turno</figcaption>
           </figure>
         </li>
       </ul>

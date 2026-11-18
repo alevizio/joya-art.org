@@ -54,6 +54,36 @@
 .page-badge .header__bar,
 .page-badge .menu { background: var(--black); }
 .page-badge .header__logo img { filter: invert(1); }
+/* The language switch, small, at the top right of the header: after the links on a wide screen,
+   before the burger on a phone. Each button is drawn small but still takes a 44 px tall tap. */
+.bdg-lang {
+  --bdg-lang-h: 1.75rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-left: var(--bdg-space-3);
+  border: var(--bdg-line-w) solid currentColor;
+  font-size: .75rem;
+  line-height: 1;
+}
+.bdg-lang__btn {
+  position: relative;
+  min-width: 2.25rem;
+  height: var(--bdg-lang-h);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+.bdg-lang__btn::before { content: ""; position: absolute; inset: calc((var(--bdg-tap-small) - var(--bdg-lang-h)) / -2) 0; }
+.bdg-lang__btn[aria-pressed="true"] { background: var(--white); color: var(--black); }
+@media (max-width: 799px), (pointer: coarse) and (max-width: 1024px) {
+  .page-badge .header__logo { flex: 1 1 auto; }
+  .bdg-lang { margin: 0 var(--bdg-space-2) 0 0; }
+}
 
 
 /* ---------- 2. buttons, pills, inputs ---------- */
@@ -142,12 +172,6 @@
   font-weight: 700;
 }
 .bdg-hero { display: grid; gap: var(--bdg-space-4); }
-.bdg-hero__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--bdg-space-2);
-}
 .bdg-kicker { margin: 0; font-family: var(--font-heading); }
 .bdg-hero__title { margin: var(--bdg-space-2) 0; }
 /* The marks site.js draws behind two words of the title. The marked word turns black once its
@@ -249,21 +273,6 @@
   .bdg-hero { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--bdg-space-5); }
 }
 
-.bdg-lang { display: inline-flex; border: var(--bdg-line-w) solid var(--text); }
-.bdg-lang__btn {
-  min-width: var(--bdg-tap);
-  min-height: var(--bdg-tap-small);
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-family: var(--font-heading);
-  cursor: pointer;
-}
-.bdg-lang__btn[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-
 /* The hero and the facts read as one night band: a hairline between them, not a new section. */
 .page-badge .section--first + .theme-black > .section__wrap { padding-top: 0; }
 .bdg-facts {
@@ -296,21 +305,51 @@
 
 
 /* ---------- 4. photos of the board ---------- */
-.bdg-gallery { max-width: var(--bdg-form-w); margin: 0 auto; }
+/* The photos take the full width of the page, each cut to the same tile, with its line written over
+   the bottom of the picture. One column on a phone, two from 600 px, three from 1024 px; a wide tile
+   spans two columns, so every row is full: two columns = boards | on dark | panel stand | flash rig,
+   three = boards on | dark panel stand | flash rig. */
 .bdg-gallery__title { margin-top: 0; }
+.bdg-gallery > .t-large { max-width: var(--bdg-form-w); }
 .bdg-gallery__list {
   display: grid;
-  gap: var(--bdg-space-3);
+  gap: var(--bdg-space-2);
   margin: var(--bdg-space-4) 0 0;
   padding: 0;
   list-style: none;
 }
+.bdg-gallery__item { position: relative; aspect-ratio: 4 / 5; background: var(--black); }
+.bdg-gallery__item--wide { aspect-ratio: 3 / 2; }
+.bdg-gallery__item figure,
+.bdg-gallery__item a { position: absolute; inset: 0; margin: 0; }
+.bdg-gallery__item a:focus-visible { outline: 3px solid var(--bdg-hl-pink); outline-offset: -3px; z-index: 1; }
+.bdg-gallery__item img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bdg-gallery__item figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: var(--bdg-space-4) var(--bdg-space-2) var(--bdg-space-2);
+  background: linear-gradient(transparent, rgb(0 0 0 / .72));
+  color: var(--white);
+  line-height: 1.4;
+  pointer-events: none;   /* a tap on the line still opens the photo */
+}
 @media (min-width: 600px) {
   .bdg-gallery__list { grid-template-columns: 1fr 1fr; }
+  .bdg-gallery__item--wide { grid-column: span 2; }
 }
-.bdg-gallery__item figure { margin: 0; }
-.bdg-gallery__item img { display: block; width: 100%; height: auto; }
-.bdg-gallery__item figcaption { margin-top: var(--bdg-space-1); color: var(--bdg-muted); }
+/* A wide tile beside a 4:5 one takes that tile's height. */
+@media (min-width: 1024px) {
+  .bdg-gallery__list { grid-template-columns: repeat(3, 1fr); }
+  .bdg-gallery__item--wide,
+  .bdg-gallery__item--wide-lg { grid-column: span 2; aspect-ratio: auto; }
+}
+/* Where each picture is cut: its subject inside the tile. */
+.bdg-photo--boards img { object-position: 50% 58%; }
+.bdg-photo--on img { object-position: 38% 50%; }
+.bdg-photo--rig img { object-position: 50% 85%; }
 
 
 /* the board explained on video, below the photos */

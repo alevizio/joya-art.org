@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { MM_W, MM_H, padAbs, boardFaceMaterial, setFaceUvs } from './textures.js';
 import { buildPart } from './parts.js';
 import { Sim, PALETTES } from './sim.js';
+import { createLedGlow } from './glow.js';
 
 const OUTLINE = [[37.5, 0], [75, 37.5], [54.5, 59.3], [20.5, 59.3], [0, 37.5]];
 const FOV = 28;
@@ -27,8 +28,8 @@ const EFFECT_MS = 8000;
 const TICK_MS = 17;
 const FADE_MS = 380;
 const LED_GAIN = 0.9; // lens emissive: lower than the video's 1.4, which had bloom to carry the colour
-const LED_LIGHT = 9; // candela of the point light over each LED
-const GLOW = 0.42; // halo sprite: stands in for the video's bloom
+const LED_LIGHT = 5; // candela of the point light over each LED: the glow (glow.js) carries the rest
+const MM_PER_DIST = 1 / (2 * Math.tan((FOV / 2) * (Math.PI / 180))); // screen heights per mm, times the camera distance
 const STUDIO = 0.85;
 const TILT_RANGE = [-1.45, 0.5];
 const GOLD = '#e8c06a';
@@ -196,17 +197,14 @@ export const mountViewer = async (root) => {
     if (part) layer[f.layer === 'B.Cu' ? 'parts' : 'leds'].add(part.group);
   }
   out.leds.sort((a, b) => Number(a.ref.slice(1)) - Number(b.ref.slice(1)));
-  const glowTex = radialTexture([[0, 'rgba(255,255,255,0.9)'], [0.25, 'rgba(255,255,255,0.32)'], [0.6, 'rgba(255,255,255,0.07)'], [1, 'rgba(255,255,255,0)']]);
   for (const led of out.leds) {
     led.light = new THREE.PointLight(0xffffff, LED_LIGHT, 30, 2);
     led.light.position.set(0, 0, 3.2);
     led.group.add(led.light);
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
-    glow.scale.set(17, 17, 1);
-    glow.position.set(0, 0, 1.9);
-    led.group.add(glow);
-    led.glow = glow.material;
   }
+  // the light the LEDs give off, over the whole stage (glow.js)
+  const glow = createLedGlow(out.leds.length);
+  scene.add(glow.mesh);
 
   const key = new THREE.DirectionalLight('#fff4e6', 2.2);
   key.position.set(-160, 110, 80);
@@ -244,8 +242,7 @@ export const mountViewer = async (root) => {
       led.lens.emissive.setRGB(r, g, b);
       led.lens.emissiveIntensity = LED_GAIN;
       led.light.color.setRGB(r, g, b);
-      led.glow.color.setRGB(r, g, b);
-      led.glow.opacity = Math.max(r, g, b) > 0.004 ? GLOW : 0;
+      led.color = [r, g, b];
     });
   };
 
@@ -289,6 +286,7 @@ export const mountViewer = async (root) => {
     showLights();
     boardGroup.updateMatrixWorld(true);
     camera.updateMatrixWorld(true);
+    glow.update(out.leds, layer.leds, camera, MM_PER_DIST / state.dist);
     placeMarks();
     renderer.render(scene, camera);
   };
