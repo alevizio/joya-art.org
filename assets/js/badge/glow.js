@@ -1,22 +1,10 @@
 // The light of the board's LEDs, drawn over the 3D scene in one pass (stage.js). Written for this page
 // after the look of glow shaders like Xor's "LED" on fragcoord.xyz (no code taken from it).
-// Each LED is a white hot point the size of its lens, inside a soft halo in a deeper shade of its own
-// colour, with a thin 1/d tail that dies out within a few millimetres, so every LED keeps its own
-// light and the board between them stays dark. The light is added on top of the scene and rolled off
-// with 1 - e^-x, so a bright LED goes white at its centre and keeps its colour toward the edge.
+// How each LED's light falls off is in led-light.js, which the phone remote uses too.
 import * as THREE from 'three';
+import { LIGHT } from './led-light.js';
 
-// in millimetres at the board, so the light keeps its size when the camera moves back
-const CORE = 3.2;    // strength of the hot centre
-const CORE_MM = 1;   // its radius: about the lens
-const WHITE = 0.45;  // how far the centre's colour moves toward white: the LEDs show pure hues, with
-                     // empty channels that would never roll off to white on their own
-const HALO = 0.55;   // the halo around the package: HALO * e^-(mm / HALO_MM)^2
-const HALO_MM = 3.5;
-const RAY = 0.18;    // the thin tail: RAY / (mm + RAY_MM) * e^-(mm / RAY_REACH)
-const RAY_MM = 0.8;
-const RAY_REACH = 3.5;
-const VIVID = 2.2;   // the deeper shade: each channel over the brightest one, to this power
+const f = (v) => v.toFixed(3); // a number written into the shader
 
 const vertexShader = /* glsl */ `
 varying vec2 vUv;
@@ -37,11 +25,11 @@ void main() {
     float mm = distance(vUv, uLed[i].xy) / uMm;
     vec3 c = uColor[i];
     float top = max(c.r, max(c.g, c.b));
-    vec3 deep = top > 0.0 ? pow(c / top, vec3(${VIVID.toFixed(3)})) * top : c;
-    float core = ${CORE.toFixed(3)} * exp(-mm * mm / ${(CORE_MM * CORE_MM).toFixed(3)});
-    float h = mm / ${HALO_MM.toFixed(3)};
-    float halo = ${HALO.toFixed(3)} * exp(-h * h) + ${RAY.toFixed(3)} / (mm + ${RAY_MM.toFixed(3)}) * exp(-mm / ${RAY_REACH.toFixed(3)});
-    light += (mix(c, vec3(top), ${WHITE.toFixed(3)}) * core + deep * halo) * uLed[i].z;
+    vec3 deep = top > 0.0 ? pow(c / top, vec3(${f(LIGHT.vivid)})) * top : c;
+    float core = ${f(LIGHT.core)} * exp(-mm * mm / ${f(LIGHT.coreMm * LIGHT.coreMm)});
+    float h = mm / ${f(LIGHT.haloMm)};
+    float halo = ${f(LIGHT.halo)} * exp(-h * h) + ${f(LIGHT.ray)} / (mm + ${f(LIGHT.rayMm)}) * exp(-mm / ${f(LIGHT.rayReach)});
+    light += (mix(c, vec3(top), ${f(LIGHT.white)}) * core + deep * halo) * uLed[i].z;
   }
   light = 1.0 - exp(-light);
   // premultiplied: added to the board, and over the page's own spotlight where the canvas is clear

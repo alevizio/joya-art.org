@@ -239,4 +239,4 @@ function drawBadge(cv,L,o){const ctx=cv.getContext('2d');const W=cv.width,H=cv.h
       ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.beginPath();ctx.moveTo(b[0],b[1]);ctx.lineTo(b[0]-ux*2.2*s-uy*1.3*s,b[1]-uy*2.2*s+ux*1.3*s);ctx.lineTo(b[0]-ux*2.2*s+uy*1.3*s,b[1]-uy*2.2*s-ux*1.3*s);ctx.closePath();ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fill()}
     ctx.fillStyle='#e6e7ee';for(let i=0;i<N;i++){const [x,y]=P(LEDMM[i]);ctx.fillText(`${REF[i]} · ${i}`,x,y-4.2*s)}ctx.restore()}}
 
-export { Sim, PALETTES, EFFECTS, blendTowardPalette, drawBadge };
+export { Sim, PALETTES, EFFECTS, LEDMM, blendTowardPalette, drawBadge, disp };

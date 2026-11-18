@@ -3,7 +3,8 @@
 // the preview runs it with the firmware's light code (sim.js), the way the badge would.
 // The page inside the phone stays in English, as the real remote page is.
 // Without JavaScript the phone stays hidden and the text beside it still explains the remote.
-import { Sim, PALETTES, EFFECTS, blendTowardPalette, drawBadge } from './sim.js';
+import { Sim, PALETTES, EFFECTS, LEDMM, blendTowardPalette, drawBadge, disp } from './sim.js';
+import { paintLedLight } from './led-light.js';
 
 const TICK_MS = 17;
 const LOGICAL_W = 390; // the remote page is laid out for a 390 px wide phone, then zoomed to fit
@@ -17,6 +18,16 @@ const el = (tag, cls, text, parent) => {
   if (text != null) node.textContent = text;
   if (parent) parent.append(node);
   return node;
+};
+// The badge as sim.js draws it, then the same light over each LED as on the 3D board (led-light.js).
+// The scale and offsets repeat how drawBadge fits the 75 x 59.3 mm board into the canvas.
+const drawLit = (cv, L, o) => {
+  drawBadge(cv, L, o);
+  const s = Math.min(cv.width / 80, cv.height / 64);
+  const ox = (cv.width - 75 * s) / 2;
+  const oy = (cv.height - 59.3 * s) / 2;
+  const leds = L.map((c, i) => ({ x: ox + LEDMM[i][0] * s, y: oy + LEDMM[i][1] * s, color: c.map((v) => disp(v, o.bri)) }));
+  paintLedLight(cv.getContext('2d'), leds, s);
 };
 const swatch = (pal) => `linear-gradient(90deg,${pal.entries.map((c, k) => `rgb(${c[0]},${c[1]},${c[2]}) ${((k / 15) * 100).toFixed(1)}%`).join(',')})`;
 
@@ -93,8 +104,8 @@ const mountRemote = (root) => {
   let frameNo = 0;
   const draw = (all) => {
     const o = { bri: Number(bri.value) };
-    drawBadge(main, mainSim.L, { ...o, bloom: true });
-    if (all || frameNo % 2 === 0) tiles.forEach((tile) => drawBadge(tile.cv, tile.sim.L, { ...o, simple: true }));
+    drawLit(main, mainSim.L, o);
+    if (all || frameNo % 2 === 0) tiles.forEach((tile) => drawLit(tile.cv, tile.sim.L, { ...o, simple: true }));
     frameNo++;
   };
   const label = () => {
