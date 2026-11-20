@@ -1,26 +1,31 @@
-// The /badge 3D viewer: the real board, built from its KiCad file (badge-board.json), with the
-// firmware's own light effects (sim.js). Drag it to turn it, flip it, or pull it apart into layers.
-// Loaded by viewer.js only when it is needed; `three` comes from the import map in badge.html.
-// The scene follows Joya PCB/Video/js/scene.js, without the bloom passes and shadows of the video
-// render, so it runs on a phone.
+// The /badge 3D viewer: the finished badge. The real board, built from its KiCad file (badge-board.json)
+// and lit by the firmware's own light effects (sim.js), inside its 3D printed shell with the clamp, the
+// battery and a lanyard (case.js, badge-shell.json). Drag it to turn it, flip it, or take it apart down to
+// the board's layers. Loaded by viewer.js only when it is needed; `three` comes from the import map in
+// badge.html. The scene follows Joya PCB/Video/js/scene.js, without the bloom passes and shadows of the
+// video render, so it runs on a phone.
 import * as THREE from 'three';
 import { MM_W, MM_H, padAbs, boardFaceMaterial, setFaceUvs } from './textures.js';
 import { buildPart } from './parts.js';
+import { buildCase } from './case.js';
 import { Sim, PALETTES } from './sim.js';
 import { createLedGlow } from './glow.js';
 
 const OUTLINE = [[37.5, 0], [75, 37.5], [54.5, 59.3], [20.5, 59.3], [0, 37.5]];
 const FOV = 28;
-const GAP = 9; // mm between two layers when the board is pulled apart (the real board is 1 mm thick)
-// spin turns the board about its upright axis, tilt leans it back, dist is the camera distance in mm
-const FACE = { spin: 0, tilt: -0.2, dist: 200 };
-const APART = { spin: -0.6, tilt: -1.02, dist: 270 };
+const GAP = 9; // mm between two layers of the board when it is taken apart (the real board is 1 mm thick)
+// spin turns the badge about its upright axis, tilt leans it back, dist is the camera distance in mm and
+// look the height the camera aims at: whole, the lanyard rises above the badge, so the camera looks higher
+const FACE = { spin: 0.42, tilt: -0.12, dist: 252, look: 21 };
+const APART = { spin: -0.4, tilt: -1.02, dist: 390, look: -22 };
 // a narrow viewer (a phone) stands further back when apart, as the names take more of its width
 const NARROW_PX = 480;
-const NARROW_DIST = 330;
-const SHIFT = { wide: 18, narrow: 30 }; // mm the view moves right when apart, so the names fit beside the layers
-// front to back; k is how many gaps the layer moves out when pulled apart
+const NARROW_DIST = 335;
+const SHIFT = { wide: 30, narrow: 40 }; // mm the view moves right when apart, so the names fit beside the layers
+// front to back; k is how many gaps the layer moves out when taken apart
 const LAYERS = [['leds', 3], ['fmask', 2], ['fcu', 1], ['core', 0], ['bcu', -1], ['bmask', -2], ['parts', -3]];
+// and the rest of the badge, in mm: the battery and the shell move back, the clamp up and forward
+const OUT = { battery: -44, shell: -64, clamp: [0, 12, 38] };
 // the effects shown in turn, with a palette each (6 Party, 17 Rainbow, 31 Heat): the ones that keep
 // nearly all 13 LEDs lit and in full colour, so the board never looks half off or washed out
 const PROGRAMME = [['inoise8_fire', 6], ['serendipitous', 6], ['confetti_pal', 6], ['noise16_1', 17], ['inoise8_fire', 31]];
@@ -38,7 +43,8 @@ const smooth = (v) => {
   const x = Math.min(1, Math.max(0, v));
   return x * x * (3 - 2 * x);
 };
-const nearestFace = (spin) => Math.round(spin / Math.PI) * Math.PI;
+// the turn nearest `spin` with the LEDs to the camera: the parts come apart, and go back, front first
+const nearestFront = (spin) => Math.round(spin / (2 * Math.PI)) * 2 * Math.PI;
 
 const radialTexture = (stops, size = 256) => {
   const cv = document.createElement('canvas');
@@ -138,7 +144,8 @@ const copperTexture = (board, front, aniso) => {
    on screen. */
 export const mountViewer = async (root) => {
   const stageBox = root.querySelector('[data-viewer-stage]');
-  const board = await (await fetch(root.getAttribute('data-board'))).json();
+  const json = async (attr) => (await fetch(root.getAttribute(attr))).json();
+  const [board, caseData] = await Promise.all([json('data-board'), json('data-case')]);
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const canvas = document.createElement('canvas');
@@ -159,12 +166,12 @@ export const mountViewer = async (root) => {
   const camera = new THREE.PerspectiveCamera(FOV, 1, 10, 3000);
 
   // ---- the board, one group per layer so each can move out on its own ----
-  const boardGroup = new THREE.Group();
-  scene.add(boardGroup);
+  const badge = new THREE.Group();
+  scene.add(badge);
   const layer = Object.fromEntries(LAYERS.map(([key, k]) => {
     const g = new THREE.Group();
     g.userData.k = k;
-    boardGroup.add(g);
+    badge.add(g);
     return [key, g];
   }));
   const shape = new THREE.Shape();
@@ -202,14 +209,18 @@ export const mountViewer = async (root) => {
     led.light.position.set(0, 0, 3.2);
     led.group.add(led.light);
   }
+  // ---- the rest of the badge: shell, battery, clamp and lanyard ----
+  const kit = buildCase(caseData, aniso);
+  const batteryZ = kit.battery.position.z;
+  badge.add(kit.shell, kit.battery, kit.clamp);
   // the light the LEDs give off, over the whole stage (glow.js)
   const glow = createLedGlow(out.leds.length);
   scene.add(glow.mesh);
 
   const key = new THREE.DirectionalLight('#fff4e6', 2.2);
   key.position.set(-160, 110, 80);
-  const rim = new THREE.DirectionalLight('#9db8ff', 1.1);
-  rim.position.set(110, 40, -60);
+  const rim = new THREE.DirectionalLight('#9db8ff', 1.8); // also draws the black shell's edges against the black page
+  rim.position.set(120, 60, -40);
   const fill = new THREE.DirectionalLight('#ffe9d2', 0.5);
   fill.position.set(90, -60, 120);
   scene.add(key, rim, fill);
@@ -253,38 +264,52 @@ export const mountViewer = async (root) => {
   let lastTouch = -1e9;
   let sway = 0;
 
-  // each layer's name, beside the layer's right-hand corner
+  // each part's name, beside its right-hand corner: the board's layers, the battery, the shell, the clamp
   const marks = Array.from(root.querySelectorAll('[data-layer-mark]'));
   const legend = root.querySelector('[data-viewer-legend]');
   const corner = new THREE.Vector3();
+  const markAt = (name) => {
+    if (layer[name]) return corner.set(39.5, -7.5, layer[name].position.z);
+    if (name === 'battery') return corner.set(39.5, -7.5, kit.battery.position.z);
+    if (name === 'shell') return corner.set(42, -7.5, kit.shell.position.z - 5);
+    return corner.set(11, 44, 0).add(kit.clamp.position);
+  };
   const placeMarks = () => {
     for (const mark of marks) {
-      const g = layer[mark.getAttribute('data-layer-mark')];
-      corner.set(39.5, -7.5, g.position.z).applyMatrix4(boardGroup.matrixWorld).project(camera);
-      mark.style.left = ((corner.x * 0.5 + 0.5) * 100).toFixed(2) + '%';
+      markAt(mark.getAttribute('data-layer-mark')).applyMatrix4(badge.matrixWorld).project(camera);
+      const left = (corner.x * 0.5 + 0.5) * 100;
+      mark.style.left = left.toFixed(2) + '%';
+      mark.style.maxWidth = `calc(${(100 - left).toFixed(2)}% - .6rem)`; // a name near the right edge wraps
       mark.style.top = ((-corner.y * 0.5 + 0.5) * 100).toFixed(2) + '%';
       mark.style.opacity = smooth((state.explode - 0.6) / 0.4).toFixed(3);
     }
   };
 
   const draw = (now) => {
-    for (const g of Object.values(layer)) g.position.z = g.userData.k * GAP * state.explode;
+    const apart = state.explode;
+    for (const g of Object.values(layer)) g.position.z = g.userData.k * GAP * apart;
     for (const sheet of copper) {
-      sheet.visible = state.explode > 0.02;
-      sheet.material.opacity = smooth(state.explode * 1.6);
+      sheet.visible = apart > 0.02;
+      sheet.material.opacity = smooth(apart * 1.6);
     }
+    kit.battery.visible = apart > 0.01; // inside the shell when the badge is whole
+    kit.battery.position.z = batteryZ + OUT.battery * apart;
+    kit.shell.position.z = OUT.shell * apart;
+    kit.clamp.position.set(...OUT.clamp.map((v) => v * apart));
+    kit.ribbon.material.opacity = 1 - smooth(apart * 2.5); // the lanyard goes before the parts come apart
+    kit.ribbon.visible = kit.ribbon.material.opacity > 0.01;
     const spin = state.spin + sway * 0.2 * Math.sin((now / 9000) * Math.PI * 2);
-    boardGroup.rotation.set(state.tilt, spin, 0);
-    const shift = SHIFT[stageBox.clientWidth < NARROW_PX ? 'narrow' : 'wide'] * state.explode;
-    camera.position.set(shift, 0, state.dist);
-    camera.lookAt(shift, 0, 0);
-    // the back of the board gets the full studio, the front a dimmer one so the LEDs carry it
+    badge.rotation.set(state.tilt, spin, 0);
+    const shift = SHIFT[stageBox.clientWidth < NARROW_PX ? 'narrow' : 'wide'] * apart;
+    camera.position.set(shift, state.look, state.dist);
+    camera.lookAt(shift, state.look, 0);
+    // the back of the badge gets the full studio, the front a dimmer one so the LEDs carry it
     const back = smooth(0.5 - Math.cos(spin) * 0.5);
     key.intensity = (2.0 + 1.9 * back) * STUDIO;
     fill.intensity = (0.35 + 0.65 * back) * STUDIO;
     scene.environmentIntensity = (0.8 + 0.45 * back) * STUDIO;
     showLights();
-    boardGroup.updateMatrixWorld(true);
+    badge.updateMatrixWorld(true);
     camera.updateMatrixWorld(true);
     glow.update(out.leds, layer.leds, camera, MM_PER_DIST / state.dist);
     placeMarks();
@@ -295,7 +320,7 @@ export const mountViewer = async (root) => {
   const step = (dt, now) => {
     const k = reduced.matches ? 1 : 1 - Math.exp(-dt * 6);
     let moving = false;
-    for (const name of ['spin', 'tilt', 'dist', 'explode']) {
+    for (const name of ['spin', 'tilt', 'dist', 'look', 'explode']) {
       const held = dragging && (name === 'spin' || name === 'tilt');
       state[name] += (target[name] - state[name]) * (held ? 1 : k);
       if (Math.abs(target[name] - state[name]) > 1e-4) moving = true;
@@ -373,9 +398,9 @@ export const mountViewer = async (root) => {
     const apart = layersButton.getAttribute('aria-pressed') !== 'true';
     layersButton.setAttribute('aria-pressed', String(apart));
     legend.hidden = !apart;
-    const face = nearestFace(target.spin);
+    const front = nearestFront(target.spin);
     const dist = stageBox.clientWidth < NARROW_PX ? NARROW_DIST : APART.dist;
-    Object.assign(target, apart ? { ...APART, dist, spin: face + APART.spin, explode: 1 } : { ...FACE, spin: face, explode: 0 });
+    Object.assign(target, apart ? { ...APART, dist, spin: front + APART.spin, explode: 1 } : { ...FACE, spin: front + FACE.spin, explode: 0 });
     lastTouch = performance.now();
     schedule();
   });

@@ -27,7 +27,7 @@ const filled = () => ({
   }
 });
 const validOrder = () => ({
-  tier: 'two', amount: '', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
+  tier: 'badges', qty: '2', amount: '', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
 });
 
 test('settings as shipped: nobody can pay yet, so the page is a draft', () => {
@@ -51,14 +51,36 @@ test('a payment method is ready only when its details are complete and its link 
   assert.equal(rules.methodReady(config, 'paypal'), false);
 });
 
-test('progress: whole badges, never under zero or over the total', () => {
-  assert.deepEqual(rules.progress({ badgesTotal: 100, badgesClaimed: 37 }), { claimed: 37, total: 100 });
-  assert.deepEqual(rules.progress({ badgesTotal: 100, badgesClaimed: 140 }), { claimed: 100, total: 100 });
-  assert.deepEqual(rules.progress({ badgesTotal: 100, badgesClaimed: -3 }), { claimed: 0, total: 100 });
-  assert.deepEqual(rules.progress({ badgesTotal: 100, badgesClaimed: 12.9 }), { claimed: 12, total: 100 });
-  assert.deepEqual(rules.progress({ badgesTotal: 100, badgesClaimed: 'x' }), { claimed: 0, total: 100 });
-  assert.deepEqual(rules.progress({}), { claimed: 0, total: 0 });
-  assert.equal(rules.t('en', 'progress.text', rules.progress({ badgesTotal: 100, badgesClaimed: 37 })), '37 of 100 badges claimed');
+test('badges left: whole badges, never under zero or over the run', () => {
+  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 37 }), 63);
+  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 140 }), 0);
+  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: -3 }), 100);
+  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 12.9 }), 88);
+  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 'x' }), 100);
+  assert.equal(rules.maxBadges({}), 0);
+});
+
+test('price per badge: USD 24 for one, a dollar less each for every one more, never under USD 18', () => {
+  const config = rules.CONFIG;
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 20, 100].map((n) => rules.unitPrice(n, config)), [24, 23, 22, 21, 20, 19, 18, 18, 18, 18]);
+  assert.equal(rules.floorQty(config), 7);
+  assert.equal(rules.unitPrice(0, config), 24);
+  /* buying one more never costs less in total */
+  let last = 0;
+  for (let n = 1; n <= rules.maxBadges(config); n++) {
+    const total = rules.orderTotal({ tier: 'badges', qty: String(n) }, config);
+    assert.ok(total > last, n + ' badges cost ' + total + ', not more than ' + last);
+    assert.ok(total / n >= config.priceFloor);
+    last = total;
+  }
+});
+
+test('counts: whole numbers from 1', () => {
+  assert.equal(rules.parseQty('3'), 3);
+  assert.equal(rules.parseQty(' 12 '), 12);
+  for (const bad of ['', '0', '-1', '2.5', '1e2', 'x', '12345', null, undefined]) {
+    assert.ok(Number.isNaN(rules.parseQty(bad)), String(bad));
+  }
 });
 
 test('amounts: digits with up to two decimals, comma or point', () => {
@@ -72,8 +94,10 @@ test('amounts: digits with up to two decimals, comma or point', () => {
 
 test('totals and how they are written', () => {
   const config = filled();
-  assert.equal(rules.orderTotal({ tier: 'one' }, config), config.priceOne);
-  assert.equal(rules.orderTotal({ tier: 'two' }, config), config.priceTwo);
+  assert.equal(rules.orderTotal({ tier: 'badges', qty: '1' }, config), 24);
+  assert.equal(rules.orderTotal({ tier: 'badges', qty: '3' }, config), 66);
+  assert.equal(rules.orderTotal({ tier: 'badges', qty: '10' }, config), 180);
+  assert.equal(rules.orderTotal({ tier: 'badges', qty: 'x' }, config), 0);
   assert.equal(rules.orderTotal({ tier: 'donate', amount: '25,5' }, config), 25.5);
   assert.equal(rules.orderTotal({ tier: 'donate', amount: 'x' }, config), 0);
   assert.equal(rules.orderTotal({ tier: '' }, config), 0);
@@ -84,14 +108,23 @@ test('totals and how they are written', () => {
 });
 
 test('empty state: each step says what is missing', () => {
-  const empty = { tier: '', amount: '', name: '', email: '', method: '' };
-  assert.deepEqual(rules.validateStep(1, empty, filled()), { tier: 'err.tier' });
+  const empty = { tier: '', qty: '', amount: '', name: '', email: '', method: '' };
+  assert.deepEqual(rules.validateStep(1, empty, filled()), { qty: 'err.qty' });
+  assert.deepEqual(rules.validateStep(1, { ...empty, tier: 'badges' }, filled()), { qty: 'err.qty' });
+  assert.deepEqual(rules.validateStep(1, { ...empty, tier: 'donate' }, filled()), { amount: 'err.amount' });
   assert.deepEqual(rules.validateStep(2, empty, filled()), { name: 'err.name', email: 'err.email', method: 'err.method' });
 });
 
 test('validation errors', () => {
   const config = filled();
-  assert.deepEqual(rules.validateStep(1, { tier: 'three' }, config), { tier: 'err.tier' });
+  assert.deepEqual(rules.validateStep(1, { tier: 'three' }, config), { qty: 'err.qty' });
+  for (const qty of ['', '0', '2.5', 'x']) {
+    assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty }, config), { qty: 'err.qty' }, qty);
+  }
+  /* more than are left: a message that does not say how many there are */
+  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '101' }, config), { qty: 'err.qtyMax' });
+  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '64' }, { ...config, badgesClaimed: 37 }), { qty: 'err.qtyMax' });
+  assert.ok(!/\d/.test(rules.WORDS.es['err.qtyMax'] + rules.WORDS.en['err.qtyMax']));
   for (const amount of ['', 'abc', '4.99', '10001']) {
     assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount }, config), { amount: 'err.amount' }, amount);
   }
@@ -107,15 +140,15 @@ test('valid submission: every step passes and the email holds the order', () => 
   const config = filled();
   const order = validOrder();
   for (const step of [1, 2]) assert.deepEqual(rules.validateStep(step, order, config), {}, 'step ' + step);
-  assert.deepEqual(rules.validateStep(1, { tier: 'one' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '1' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '100' }, config), {});
   assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '5' }, config), {});
   assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '10000' }, config), {});
 
   const text = rules.orderText(order, config, 'en', 'JOYA-TEST0001');
   assert.deepEqual(text.split('\n'), [
-    'One badge',
-    'A badge for your friend',
-    'Total: ' + rules.formatUsd(config.priceTwo),
+    '2 badges, USD 23 each',
+    'Total: USD 46',
     'Payment method: Venmo',
     'Code: JOYA-TEST0001',
     'Name: Ana Test',
@@ -124,7 +157,9 @@ test('valid submission: every step passes and the email holds the order', () => 
   const url = rules.mailtoUrl(order, config, 'es', 'JOYA-TEST0001');
   assert.ok(url.startsWith('mailto:' + config.orderEmail + '?subject=Pedido%20Joya%20Badge%20JOYA-TEST0001&body='));
   assert.equal(decodeURIComponent(url.split('&body=')[1]), rules.orderText(order, config, 'es', 'JOYA-TEST0001'));
-  assert.deepEqual(rules.orderItems({ tier: 'donate' }, 'es'), ['Donación']);
+  assert.deepEqual(rules.orderItems({ tier: 'donate' }, config, 'es'), ['Donación']);
+  assert.deepEqual(rules.orderItems({ tier: 'badges', qty: '1' }, config, 'es'), ['Un badge']);
+  assert.deepEqual(rules.orderItems({ tier: 'badges', qty: '8' }, config, 'es'), ['8 badges, USD 18 cada uno']);
 });
 
 test('what a visitor types cannot break out of the email link', () => {
@@ -189,16 +224,28 @@ test('a marked sentence is written in badge.html as the script writes it, with t
 test('badge.html matches the settings', () => {
   assert.deepEqual(attrValues('data-preset').map(Number), rules.CONFIG.donationPresets);
   assert.deepEqual(attrValues('data-method'), rules.METHOD_IDS);
-  for (const name of ['tier', 'amount', 'name', 'email', 'method']) {
+  assert.ok(html.includes('name="donate"'), 'no box for a donation only');
+  for (const name of ['qty', 'amount', 'name', 'email', 'method']) {
     assert.ok(html.includes('name="' + name + '"'), 'no input named ' + name);
     assert.ok(html.includes('data-error="' + name + '"'), 'no error box for ' + name);
     assert.ok(html.includes('data-field="' + name + '"'), 'no focus target for ' + name);
   }
   assert.ok(html.includes('mailto:' + rules.CONFIG.orderEmail));
   assert.ok(html.includes(NOINDEX), 'the draft must stay out of search');
-  const run = rules.progress(rules.CONFIG);
-  assert.ok(html.includes('data-progress-text>' + rules.t('es', 'progress.text', run) + '<'), 'progress text differs from the settings');
-  assert.ok(html.includes('<progress class="bdg-progress__bar" max="' + run.total + '" value="' + run.claimed + '"'), 'progress bar differs from the settings');
+  const one = rules.formatUsd(rules.unitPrice(1, rules.CONFIG));
+  assert.ok(html.includes('data-qty-total>' + rules.t('es', 'qty.total', { total: one }) + '<'), 'first total differs from the settings');
+  assert.ok(html.includes('data-qty-each>' + rules.t('es', 'qty.each', { unit: one }) + '<'), 'first price differs from the settings');
+  assert.ok(html.includes('value="1" data-field="qty"'), 'the picker starts at one');
+});
+
+test('the page never says how many badges there are', () => {
+  const cap = String(rules.CONFIG.badgesTotal);
+  for (const lang of ['es', 'en']) {
+    for (const [key, text] of Object.entries(rules.WORDS[lang])) assert.ok(!new RegExp('\\b' + cap + '\\b').test(text), lang + ' ' + key);
+  }
+  const visible = html.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/USD 100/g, '');
+  assert.ok(!new RegExp('\\b' + cap + '\\b').test(visible), 'badge.html shows ' + cap);
+  assert.ok(!/<progress/.test(html));
 });
 
 test('every file badge.html points to is in the repository', () => {
