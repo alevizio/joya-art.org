@@ -13,11 +13,12 @@
   <meta property="og:title" content="Badge — Joya">
   <meta property="og:url" content="https://joya-art.org/badge">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://joya-art.org/assets/img/badge/badge-front-1200w.webp">
+  <meta property="og:image" content="https://joya-art.org/assets/img/badge/og-badge-es.jpg">
   <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Joya Badge: Llevá la luz de Joya puesta. 13 luces LED y 12 animaciones, desde tu celular. Hacemos 100, USD 25 cada uno.">
   <meta name="twitter:title" content="Badge — Joya">
-  <meta name="twitter:image" content="https://joya-art.org/assets/img/badge/badge-front-1200w.webp">
+  <meta name="twitter:image" content="https://joya-art.org/assets/img/badge/og-badge-es.jpg">
   <meta name="twitter:url" content="https://joya-art.org/badge">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="/assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -58,6 +59,10 @@
         <p class="bdg-kicker t-small">Joya Badge</p>
         <div class="text bdg-hero__titlebox"><h1 class="bdg-hero__title" data-i18n-marked="hero.title">Llevá la <span class="hl" data-shape="marker" data-draw>luz</span> de <span class="hl" data-shape="underlineCurve" data-draw>Joya</span> puesta</h1></div>
         <p class="t-large" data-i18n="hero.lead">Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las placas ya se están fabricando. Con tu aporte cubrimos las placas, las baterías y las carcasas.</p>
+        <div class="bdg-progress">
+          <p class="bdg-progress__text" id="bdg-progress-text" data-progress-text>0 de 100 badges pedidos</p>
+          <progress class="bdg-progress__bar" max="100" value="0" aria-labelledby="bdg-progress-text" data-progress></progress>
+        </div>
         <a class="bdg-btn" href="#pedido" data-i18n="hero.cta">Quiero el mío</a>
       </div>
       <figure class="bdg-hero__figure bdg-3d" data-viewer data-board="/assets/data/badge-board.json" data-case="/assets/data/badge-shell.json">
@@ -77,8 +82,9 @@
           </ol>
         </div>
         <div class="bdg-3d__controls" data-viewer-live hidden>
-          <button class="bdg-btn bdg-btn--ghost bdg-btn--small" type="button" data-viewer-flip><span data-i18n="viewer.flip">Dar vuelta</span></button>
-          <button class="bdg-btn bdg-btn--ghost bdg-btn--small" type="button" data-viewer-layers aria-pressed="false"><span class="bdg-3d__open" data-i18n="viewer.open">Ver las capas</span><span class="bdg-3d__close" data-i18n="viewer.close">Armarlo de nuevo</span></button>
+          <button class="bdg-btn bdg-btn--ghost bdg-btn--small bdg-3d__btn" type="button" data-viewer-flip><svg class="bdg-3d__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 0 1-14.6 4.5"/><path d="M4 12A8 8 0 0 1 18.6 7.5"/><path d="M19 3.5v4h-4"/><path d="M5 20.5v-4h4"/></svg><span data-i18n="viewer.flip">Dar vuelta</span></button>
+          <button class="bdg-btn bdg-btn--ghost bdg-btn--small bdg-3d__btn" type="button" data-viewer-layers aria-pressed="false"><svg class="bdg-3d__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 21 8l-9 5-9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg><span class="bdg-3d__open" data-i18n="viewer.open">Ver las capas</span><span class="bdg-3d__close" data-i18n="viewer.close">Armarlo de nuevo</span></button>
+          <button class="bdg-btn bdg-btn--ghost bdg-btn--small bdg-3d__btn" type="button" data-viewer-cover aria-pressed="false"><svg class="bdg-3d__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 21 11.5 16 20H8l-5-8.5Z"/><path d="M12 7.5 16.7 12 14 16.5h-4L7.3 12Z"/></svg><span class="bdg-3d__open" data-i18n="viewer.coverOn">Con tapa</span><span class="bdg-3d__close" data-i18n="viewer.coverOff">Sin tapa</span></button>
         </div>
         <figcaption class="t-small"><span data-i18n="hero.caption">Modelo 3D del badge terminado. La carcasa todavía está en pruebas.</span><span class="bdg-3d__hint" data-viewer-live hidden data-i18n="viewer.hint">Arrastralo para girarlo.</span></figcaption>
       </figure>
@@ -99,137 +105,12 @@
   </div></div>
 </section>
 
-<!-- 3. the board today: real photos -->
-<section class="section section--small section--classic theme-white">
-  <div class="section__wrap"><div class="section__content">
-    <div class="bdg-gallery">
-      <h2 class="bdg-gallery__title" data-i18n="gallery.title">La placa, hoy</h2>
-      <p class="t-large" data-i18n="gallery.lead">Ya hay 5 placas armadas y andando. Estas fotos son de verdad.</p>
-      <ul class="bdg-gallery__list">
-        <li class="bdg-gallery__item bdg-gallery__item--wide bdg-photo--boards">
-          <figure>
-            <a href="/assets/img/badge/photo-boards-1600w.webp"><img src="/assets/img/badge/photo-boards-1200w.webp" srcset="/assets/img/badge/photo-boards-800w.webp 800w, /assets/img/badge/photo-boards-1200w.webp 1200w, /assets/img/badge/photo-boards-1600w.webp 1600w" sizes="(min-width: 1024px) 60vw, 88vw" width="1600" height="2133" alt="Cinco placas del badge sobre un escritorio, todavía en el panel de fábrica" data-i18n-alt="alt.photoBoards" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.boards">Las 5 placas, todavía en el panel</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--on">
-          <figure>
-            <a href="/assets/img/badge/photo-on-1200w.webp"><img src="/assets/img/badge/photo-on-900w.webp" srcset="/assets/img/badge/photo-on-600w.webp 600w, /assets/img/badge/photo-on-900w.webp 900w, /assets/img/badge/photo-on-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1050" alt="La placa del badge vista de atrás, prendida, con la batería y el cable USB-C enchufados" data-i18n-alt="alt.photoOn" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.on">Prendida, con la batería y el cable USB-C</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--dark">
-          <figure>
-            <a href="/assets/img/badge/photo-dark-1600w.webp"><img src="/assets/img/badge/photo-dark-800w.webp" srcset="/assets/img/badge/photo-dark-800w.webp 800w, /assets/img/badge/photo-dark-1200w.webp 1200w, /assets/img/badge/photo-dark-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="Tres placas del badge prendidas en un cuarto oscuro, con las luces en verde, celeste y violeta" data-i18n-alt="alt.photoDark" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.dark">Tres prendidas a oscuras</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--panel">
-          <figure>
-            <a href="/assets/img/badge/photo-panel-1600w.webp"><img src="/assets/img/badge/photo-panel-800w.webp" srcset="/assets/img/badge/photo-panel-800w.webp 800w, /assets/img/badge/photo-panel-1200w.webp 1200w, /assets/img/badge/photo-panel-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="La placa del badge con sus 13 LEDs, parada dentro del panel, con una batería adelante" data-i18n-alt="alt.photoPanel" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.panel">Una placa en su panel, con la batería al lado</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--stand">
-          <figure>
-            <a href="/assets/img/badge/photo-stand-1600w.webp"><img src="/assets/img/badge/photo-stand-800w.webp" srcset="/assets/img/badge/photo-stand-800w.webp 800w, /assets/img/badge/photo-stand-1200w.webp 1200w, /assets/img/badge/photo-stand-1600w.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="La placa del badge sola, parada sobre la mesa, con la antena y la batería conectadas" data-i18n-alt="alt.photoStand" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.stand">Ya fuera del panel, con su antena y la batería</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--flash">
-          <figure>
-            <a href="/assets/img/badge/photo-flash-1200w.webp"><img src="/assets/img/badge/photo-flash-900w.webp" srcset="/assets/img/badge/photo-flash-600w.webp 600w, /assets/img/badge/photo-flash-900w.webp 900w, /assets/img/badge/photo-flash-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1050" alt="La placa del badge con un adaptador de programación conectado" data-i18n-alt="alt.photoFlash" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.flash">Cargándole el programa de las luces</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-gallery__item--wide-lg bdg-photo--rig">
-          <figure>
-            <a href="/assets/img/badge/photo-rig-1600w.webp"><img src="/assets/img/badge/photo-rig-1200w.webp" srcset="/assets/img/badge/photo-rig-800w.webp 800w, /assets/img/badge/photo-rig-1200w.webp 1200w, /assets/img/badge/photo-rig-1600w.webp 1600w" sizes="(min-width: 1024px) 60vw, (min-width: 600px) 44vw, 88vw" width="1600" height="2133" alt="Una placa en la pinza roja de programación al lado de la computadora, y otras placas esperando en sus paneles" data-i18n-alt="alt.photoRig" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="gallery.rig">Una en la pinza de programación y las demás esperando su turno</figcaption>
-          </figure>
-        </li>
-      </ul>
-    </div>
-  </div></div>
-</section>
-
-<!-- 4. the shell on the 3D printer: Ale's videos and photos of the first test prints, 19 Nov -->
-<section class="section section--small section--classic theme-white bdg-print">
-  <div class="section__wrap"><div class="section__content">
-    <div class="bdg-gallery">
-      <h2 class="bdg-gallery__title" data-i18n="print.title">La carcasa, en la impresora 3D</h2>
-      <p class="t-large" data-i18n="print.lead">Ya salieron las primeras carcasas de prueba. Las imprimimos capa por capa y las vamos ajustando con cada prueba.</p>
-      <ul class="bdg-gallery__list">
-        <li class="bdg-gallery__item bdg-gallery__item--wide bdg-clip--timelapse">
-          <figure>
-            <video src="/assets/video/print-timelapse.mp4" poster="/assets/img/badge/print-timelapse.webp" width="1280" height="720" muted loop playsinline preload="none" data-loop></video>
-            <figcaption class="t-small" data-i18n="print.timelapse">La primera impresión, vista por la cámara de la impresora</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-clip--close">
-          <figure>
-            <video src="/assets/video/print-close.mp4" poster="/assets/img/badge/print-close.webp" width="720" height="1280" muted loop playsinline preload="none" data-loop></video>
-            <figcaption class="t-small" data-i18n="print.close">Imprimiendo una carcasa, con sus soportes</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-clip--printer">
-          <figure>
-            <video src="/assets/video/print-printer.mp4" poster="/assets/img/badge/print-printer.webp" width="720" height="1280" muted loop playsinline preload="none" data-loop></video>
-            <figcaption class="t-small" data-i18n="print.printer">La impresora, a mitad de camino</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--printer">
-          <figure>
-            <a href="/assets/img/badge/photo-printer-1200w.webp"><img src="/assets/img/badge/photo-printer-900w.webp" srcset="/assets/img/badge/photo-printer-600w.webp 600w, /assets/img/badge/photo-printer-900w.webp 900w, /assets/img/badge/photo-printer-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1600" alt="Impresora 3D con la pantalla que muestra las piezas del badge listas para imprimir" data-i18n-alt="alt.printReady" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="print.ready">Lista para imprimir dos carcasas y el clip</figcaption>
-          </figure>
-        </li>
-        <li class="bdg-gallery__item bdg-photo--slicer">
-          <figure>
-            <a href="/assets/img/badge/photo-slicer-1200w.webp"><img src="/assets/img/badge/photo-slicer-900w.webp" srcset="/assets/img/badge/photo-slicer-600w.webp 600w, /assets/img/badge/photo-slicer-900w.webp 900w, /assets/img/badge/photo-slicer-1200w.webp 1200w" sizes="(min-width: 1024px) 30vw, (min-width: 600px) 44vw, 88vw" width="1200" height="1500" alt="Pantalla del programa de impresión con dos carcasas y un clip sobre la cama de la impresora" data-i18n-alt="alt.printSlicer" loading="lazy" decoding="async"></a>
-            <figcaption class="t-small" data-i18n="print.slicer">Las piezas preparadas: casi dos horas de impresión</figcaption>
-          </figure>
-        </li>
-      </ul>
-    </div>
-  </div></div>
-</section>
-
-<!-- 5. what you get, and the board explained -->
-<section class="section section--small section--classic theme-black">
-  <div class="section__wrap"><div class="section__content">
-    <div class="bdg-video">
-      <h2 class="bdg-video__title" data-i18n="video.title">Qué recibís</h2>
-      <p class="t-large" data-i18n="video.lead">Cada badge trae la placa armada, su batería, una carcasa impresa en 3D y un lanyard. El video muestra todo lo que tiene la placa.</p>
-      <video class="bdg-video__player" controls playsinline preload="none" width="1280" height="720" src="/assets/video/badge-board-es.mp4" poster="/assets/img/badge/explainer-es.webp" data-video-es="/assets/video/badge-board-es.mp4" data-poster-es="/assets/img/badge/explainer-es.webp" data-video-en="/assets/video/badge-board-en.mp4" data-poster-en="/assets/img/badge/explainer-en.webp" aria-label="Video: qué tiene la placa del badge" data-i18n-label="video.label"></video>
-      <p class="bdg-note t-small" data-i18n="video.note">Animación 3D hecha con el diseño real de la placa.</p>
-    </div>
-  </div></div>
-</section>
-
-<!-- 6. the remote, on a phone -->
-<section class="section section--small section--classic theme-black bdg-remote">
-  <div class="section__wrap"><div class="section__content">
-    <div class="bdg-remote__grid">
-      <div class="bdg-remote__text">
-        <h2 class="bdg-remote__title" data-i18n="remote.title">12 animaciones, desde tu celular</h2>
-        <p class="t-large" data-i18n="remote.lead">Cada badge arma su propia red WiFi. Te conectás desde el celular y elegís la animación, los colores y el brillo.</p>
-        <p data-i18n="remote.mode">El botón MODE de atrás también cambia de animación.</p>
-        <p class="bdg-note t-small" data-i18n="remote.try">Probalo: tocá una animación en el teléfono. Las luces corren con el mismo código que el badge.</p>
-      </div>
-      <div class="bdg-phone" data-remote hidden>
-        <div class="bdg-phone__screen" data-remote-screen></div>
-      </div>
-    </div>
-  </div></div>
-</section>
-
-<!-- 7. the order, in two steps -->
+<!-- 3. the order, in two steps -->
 <section class="section section--small section--classic theme-white bdg-order" id="pedido" data-order>
   <div class="section__wrap"><div class="section__content">
     <div class="bdg-order__inner">
-      <h2 class="bdg-order__title" data-i18n="order.title">Armá tu pedido</h2>
-      <noscript><p class="bdg-note">Para armar tu pedido escribinos a <a href="mailto:joyacamp85@gmail.com">joyacamp85@gmail.com</a>. To order, write to us at that address.</p></noscript>
+      <h2 class="bdg-order__title" data-i18n="order.title">Armá tu pedido</h2>
+      <noscript><p class="bdg-note">Para armar tu pedido escribinos a <a href="mailto:joyacamp85@gmail.com">joyacamp85@gmail.com</a>.</p></noscript>
       <ol class="bdg-steps" aria-label="Pasos" data-i18n-label="steps.label">
         <li class="bdg-steps__item" data-step-tab="1" aria-current="step"><span class="bdg-steps__n">1</span><span data-i18n="steps.1">Cantidad</span></li>
         <li class="bdg-steps__item" data-step-tab="2"><span class="bdg-steps__n">2</span><span data-i18n="steps.2">Aporte</span></li>
@@ -237,11 +118,11 @@
 
       <form class="bdg-form" data-form novalidate>
 
-        <!-- step 1: how many badges, or a donation -->
+        <!-- step 1: how many badges -->
         <div class="bdg-step" data-step="1">
           <h3 class="bdg-step__title" id="bdg-s1-title" data-step-title tabindex="-1" data-i18n="s1.title">¿Cuántos querés?</h3>
 
-          <div class="bdg-qty" data-when-tier="badges">
+          <div class="bdg-qty">
             <label class="bdg-label" for="bdg-qty" data-i18n="qty.label">Cantidad de badges</label>
             <div class="bdg-qty__row">
               <div class="bdg-stepper">
@@ -249,29 +130,12 @@
                 <input class="bdg-input bdg-stepper__input" id="bdg-qty" name="qty" type="text" inputmode="numeric" autocomplete="off" value="1" data-field="qty" aria-describedby="bdg-qty-price bdg-err-qty">
                 <button class="bdg-stepper__btn" type="button" data-qty-step="1" aria-controls="bdg-qty" aria-label="Uno más" data-i18n-label="qty.more" aria-disabled="false"><span aria-hidden="true">+</span></button>
               </div>
-              <p class="bdg-qty__price" id="bdg-qty-price" aria-live="polite" data-qty-price><span class="bdg-qty__total" data-qty-total>Total USD 24</span> <span class="bdg-qty__each" data-qty-each>USD 24 cada uno</span> <span class="bdg-qty__save" data-qty-save hidden></span></p>
+              <p class="bdg-qty__price" id="bdg-qty-price" aria-live="polite" data-qty-price><span class="bdg-qty__total" data-qty-total>Total USD 25</span> <span class="bdg-qty__each" data-qty-each>USD 25 cada uno</span></p>
             </div>
             <p class="bdg-error" id="bdg-err-qty" data-error="qty" role="alert" hidden></p>
-            <table class="bdg-ladder" data-ladder></table>
+            <p class="bdg-qty__why t-small"><a href="#costos" data-i18n="qty.why">Ver en qué se usan tus USD 25</a></p>
           </div>
           <p class="bdg-note t-small" data-i18n="s1.note">Cada badge trae su lanyard y se puede llevar prendido a la ropa o colgado: no hace falta elegir.</p>
-
-          <label class="bdg-choice bdg-choice--row bdg-choice--check">
-            <input class="visually-hidden" type="checkbox" name="donate" value="donate">
-            <span class="bdg-choice__body"><span class="bdg-choice__title" data-i18n="tier.donate.title">Solo quiero donar, sin badge</span><span class="bdg-choice__text" data-i18n="tier.donate.text">Vos elegís el monto.</span></span>
-          </label>
-
-          <div class="bdg-sub" data-when-tier="donate" hidden>
-            <p class="bdg-label" id="bdg-presets-label" data-i18n="s1.amount.presets">Montos sugeridos</p>
-            <div class="bdg-pills" role="group" aria-labelledby="bdg-presets-label">
-              <button class="bdg-pill" type="button" data-preset="20" aria-pressed="false"><span>USD 20</span></button>
-              <button class="bdg-pill" type="button" data-preset="50" aria-pressed="false"><span>USD 50</span></button>
-              <button class="bdg-pill" type="button" data-preset="100" aria-pressed="false"><span>USD 100</span></button>
-            </div>
-            <label class="bdg-label" for="bdg-amount" data-i18n="s1.amount.label">Monto en USD</label>
-            <input class="bdg-input bdg-input--short" id="bdg-amount" name="amount" type="text" inputmode="decimal" autocomplete="off" data-field="amount" aria-describedby="bdg-err-amount">
-            <p class="bdg-error" id="bdg-err-amount" data-error="amount" role="alert" hidden></p>
-          </div>
 
           <div class="bdg-nav">
             <button class="bdg-btn" type="submit" data-i18n="nav.next">Seguir</button>
@@ -295,6 +159,11 @@
               <p class="bdg-error" id="bdg-err-email" data-error="email" role="alert" hidden></p>
             </div>
           </div>
+
+          <label class="bdg-choice bdg-choice--row bdg-choice--check">
+            <input class="visually-hidden" type="checkbox" name="public" value="yes">
+            <span class="bdg-choice__body"><span class="bdg-choice__title" data-i18n="f.public">Mostrar mi nombre en la lista</span><span class="bdg-choice__text" data-i18n="f.public.text">Si no, figurás como Anónimo en «Quienes lo hacen posible».</span></span>
+          </label>
 
           <fieldset class="bdg-sub">
             <legend class="bdg-label" data-i18n="pay.legend">¿Cómo querés aportar?</legend>
@@ -344,8 +213,176 @@
   </div></div>
 </section>
 
-<!-- 8. good to know -->
-<section class="section section--small section--classic theme-bright">
+<!-- 4. the board and the shell today: real photos, and Ale's clips of the first test prints (19 Nov) -->
+<section class="section section--small section--classic theme-white bdg-photos">
+  <div class="section__wrap"><div class="section__content">
+    <div class="bdg-gallery">
+      <h2 class="bdg-gallery__title" data-i18n="gallery.title">La placa, hoy</h2>
+      <p class="t-large" data-i18n="gallery.lead">Ya hay 5 placas armadas y andando, y las primeras carcasas de prueba salieron de la impresora 3D. Estas fotos son de verdad.</p>
+      <ul class="bdg-gallery__list">
+        <li class="bdg-gallery__item bdg-gallery__item--wide bdg-photo--boards">
+          <figure>
+            <a href="/assets/img/badge/photo-boards-1600w.webp"><img src="/assets/img/badge/photo-boards-1200w.webp" srcset="/assets/img/badge/photo-boards-800w.webp 800w, /assets/img/badge/photo-boards-1200w.webp 1200w, /assets/img/badge/photo-boards-1600w.webp 1600w" sizes="(min-width: 1024px) 67vw, 100vw" width="1600" height="2133" alt="Cinco placas del badge sobre un escritorio, todavía en el panel de fábrica" data-i18n-alt="alt.photoBoards" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.boards">Las 5 placas, todavía en el panel</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--on">
+          <figure>
+            <a href="/assets/img/badge/photo-on-1200w.webp"><img src="/assets/img/badge/photo-on-900w.webp" srcset="/assets/img/badge/photo-on-600w.webp 600w, /assets/img/badge/photo-on-900w.webp 900w, /assets/img/badge/photo-on-1200w.webp 1200w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1200" height="1050" alt="La placa del badge vista de atrás, prendida, con la batería y el cable USB-C enchufados" data-i18n-alt="alt.photoOn" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.on">Prendida, con la batería y el cable USB-C</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--dark">
+          <figure>
+            <a href="/assets/img/badge/photo-dark-1600w.webp"><img src="/assets/img/badge/photo-dark-800w.webp" srcset="/assets/img/badge/photo-dark-800w.webp 800w, /assets/img/badge/photo-dark-1200w.webp 1200w, /assets/img/badge/photo-dark-1600w.webp 1600w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1600" height="2133" alt="Tres placas del badge prendidas en un cuarto oscuro, con las luces en verde, celeste y violeta" data-i18n-alt="alt.photoDark" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.dark">Tres prendidas a oscuras</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--panel">
+          <figure>
+            <a href="/assets/img/badge/photo-panel-1600w.webp"><img src="/assets/img/badge/photo-panel-800w.webp" srcset="/assets/img/badge/photo-panel-800w.webp 800w, /assets/img/badge/photo-panel-1200w.webp 1200w, /assets/img/badge/photo-panel-1600w.webp 1600w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1600" height="2133" alt="La placa del badge con sus 13 LEDs, parada dentro del panel, con una batería adelante" data-i18n-alt="alt.photoPanel" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.panel">Una placa en su panel, con la batería al lado</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--stand">
+          <figure>
+            <a href="/assets/img/badge/photo-stand-1600w.webp"><img src="/assets/img/badge/photo-stand-800w.webp" srcset="/assets/img/badge/photo-stand-800w.webp 800w, /assets/img/badge/photo-stand-1200w.webp 1200w, /assets/img/badge/photo-stand-1600w.webp 1600w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1600" height="2133" alt="La placa del badge sola, parada sobre la mesa, con la antena y la batería conectadas" data-i18n-alt="alt.photoStand" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.stand">Ya fuera del panel, con su antena y la batería</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--flash">
+          <figure>
+            <a href="/assets/img/badge/photo-flash-1200w.webp"><img src="/assets/img/badge/photo-flash-900w.webp" srcset="/assets/img/badge/photo-flash-600w.webp 600w, /assets/img/badge/photo-flash-900w.webp 900w, /assets/img/badge/photo-flash-1200w.webp 1200w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1200" height="1050" alt="La placa del badge con un adaptador de programación conectado" data-i18n-alt="alt.photoFlash" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.flash">Cargándole el programa de las luces</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-gallery__item--wide-lg bdg-photo--rig">
+          <figure>
+            <a href="/assets/img/badge/photo-rig-1600w.webp"><img src="/assets/img/badge/photo-rig-1200w.webp" srcset="/assets/img/badge/photo-rig-800w.webp 800w, /assets/img/badge/photo-rig-1200w.webp 1200w, /assets/img/badge/photo-rig-1600w.webp 1600w" sizes="(min-width: 1024px) 67vw, (min-width: 600px) 50vw, 100vw" width="1600" height="2133" alt="Una placa en la pinza roja de programación al lado de la computadora, y otras placas esperando en sus paneles" data-i18n-alt="alt.photoRig" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="gallery.rig">Una en la pinza de programación y las demás esperando su turno</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-gallery__item--wide bdg-clip--timelapse">
+          <figure>
+            <video src="/assets/video/print-timelapse.mp4" poster="/assets/img/badge/print-timelapse.webp" width="1280" height="720" muted loop playsinline preload="none" data-loop></video>
+            <figcaption class="t-small" data-i18n="print.timelapse">La primera impresión, vista por la cámara de la impresora</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-clip--close">
+          <figure>
+            <video src="/assets/video/print-close.mp4" poster="/assets/img/badge/print-close.webp" width="720" height="1280" muted loop playsinline preload="none" data-loop></video>
+            <figcaption class="t-small" data-i18n="print.close">Imprimiendo una carcasa, con sus soportes</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-clip--printer">
+          <figure>
+            <video src="/assets/video/print-printer.mp4" poster="/assets/img/badge/print-printer.webp" width="720" height="1280" muted loop playsinline preload="none" data-loop></video>
+            <figcaption class="t-small" data-i18n="print.printer">La impresora, a mitad de camino</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--printer">
+          <figure>
+            <a href="/assets/img/badge/photo-printer-1200w.webp"><img src="/assets/img/badge/photo-printer-900w.webp" srcset="/assets/img/badge/photo-printer-600w.webp 600w, /assets/img/badge/photo-printer-900w.webp 900w, /assets/img/badge/photo-printer-1200w.webp 1200w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1200" height="1600" alt="Impresora 3D con la pantalla que muestra las piezas del badge listas para imprimir" data-i18n-alt="alt.printReady" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="print.ready">Lista para imprimir dos carcasas y el clip</figcaption>
+          </figure>
+        </li>
+        <li class="bdg-gallery__item bdg-photo--slicer">
+          <figure>
+            <a href="/assets/img/badge/photo-slicer-1200w.webp"><img src="/assets/img/badge/photo-slicer-900w.webp" srcset="/assets/img/badge/photo-slicer-600w.webp 600w, /assets/img/badge/photo-slicer-900w.webp 900w, /assets/img/badge/photo-slicer-1200w.webp 1200w" sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 100vw" width="1200" height="1500" alt="Pantalla del programa de impresión con dos carcasas y un clip sobre la cama de la impresora" data-i18n-alt="alt.printSlicer" loading="lazy" decoding="async"></a>
+            <figcaption class="t-small" data-i18n="print.slicer">Las piezas preparadas: casi dos horas de impresión</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- 5. what you get, and the board explained -->
+<section class="section section--small section--classic theme-black">
+  <div class="section__wrap"><div class="section__content">
+    <div class="bdg-video">
+      <h2 class="bdg-video__title" data-i18n="video.title">Qué recibís</h2>
+      <p class="t-large" data-i18n="video.lead">Cada badge trae la placa armada, su batería, una carcasa impresa en 3D y un lanyard. El video muestra todo lo que tiene la placa.</p>
+      <video class="bdg-video__player" controls muted loop playsinline preload="none" data-loop width="1280" height="720" src="/assets/video/badge-board-es.mp4" poster="/assets/img/badge/explainer-es.webp" data-video-es="/assets/video/badge-board-es.mp4" data-poster-es="/assets/img/badge/explainer-es.webp" data-video-en="/assets/video/badge-board-en.mp4" data-poster-en="/assets/img/badge/explainer-en.webp" aria-label="Video: qué tiene la placa del badge" data-i18n-label="video.label"></video>
+      <p class="bdg-note t-small" data-i18n="video.note">Animación 3D hecha con el diseño real de la placa.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- 6. the remote, on a phone -->
+<section class="section section--small section--classic theme-black bdg-remote">
+  <div class="section__wrap"><div class="section__content">
+    <div class="bdg-remote__grid">
+      <div class="bdg-remote__text">
+        <h2 class="bdg-remote__title" data-i18n="remote.title">12 animaciones, desde tu celular</h2>
+        <p class="t-large" data-i18n="remote.lead">Cada badge arma su propia red WiFi. Te conectás desde el celular y elegís la animación, los colores y el brillo.</p>
+        <p data-i18n="remote.mode">El botón MODE de atrás también cambia de animación.</p>
+        <p class="bdg-note t-small" data-i18n="remote.try">Probalo: tocá una animación en el teléfono. Las luces corren con el mismo código que el badge.</p>
+      </div>
+      <div class="bdg-phone" data-remote hidden>
+        <div class="bdg-phone__screen" data-remote-screen></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 7. what each badge's USD 25 pays for (after chakanafa.org's budget page). The lines must add up to
+     CONFIG.price in badge.js: badge.test.js checks it. "Pagado" = already paid, "Estimado" = quoted or worked out -->
+<section class="section section--small section--classic theme-white" id="costos">
+  <div class="section__wrap"><div class="section__content">
+    <div class="bdg-costs">
+      <h2 class="bdg-costs__title" data-i18n="costs.title">En qué se usan tus USD 25</h2>
+      <p class="t-large" data-i18n="costs.lead">Esto cuesta hacer cada badge, de la placa al lanyard. Vos pagás USD 25 y la diferencia la pone Joya: lo que falta para llegar al precio, lo que suba algún costo y las comisiones de los medios de pago.</p>
+      <table class="bdg-costs__table" data-costs>
+        <caption class="visually-hidden" data-i18n="costs.caption">Lo que cuesta cada badge, en dólares</caption>
+        <thead>
+          <tr><th scope="col" data-i18n="costs.what">Por badge</th><th scope="col" data-i18n="costs.usd">USD</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.board">Placa armada</span> <span class="bdg-costs__state bdg-costs__state--paid" data-i18n="costs.paid">Pagado</span><span class="bdg-costs__detail" data-i18n="costs.board.detail">Fabricación, componentes, envío e impuestos</span></th>
+            <td data-usd="19.95">19,95</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.battery">Batería</span> <span class="bdg-costs__state" data-i18n="costs.estimated">Estimado</span><span class="bdg-costs__detail" data-i18n="costs.battery.detail">Recargable, con protección y sensor de temperatura</span></th>
+            <td data-usd="4.00">4,00</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.antenna">Antena WiFi</span> <span class="bdg-costs__state" data-i18n="costs.estimated">Estimado</span><span class="bdg-costs__detail" data-i18n="costs.antenna.detail">Para manejarlo desde el celular</span></th>
+            <td data-usd="2.00">2,00</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.shell">Carcasa, clip y lanyard</span> <span class="bdg-costs__state" data-i18n="costs.estimated">Estimado</span><span class="bdg-costs__detail" data-i18n="costs.shell.detail">Filamento para imprimirlos en 3D y el cordón</span></th>
+            <td data-usd="0.80">0,80</td>
+          </tr>
+          <tr class="bdg-costs__joya">
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.joya">Lo que pone Joya</span><span class="bdg-costs__detail" data-i18n="costs.joya.detail">Para que cada badge salga USD 25</span></th>
+            <td data-usd="-1.75">−1,75</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row" data-i18n="costs.total">Tu aporte por badge</th><td data-usd-total="25">25,00</td></tr>
+        </tfoot>
+      </table>
+      <p class="bdg-note t-small" data-i18n="costs.note">Pagado: ya lo pagamos. Estimado: cotizado o calculado, lo actualizamos cuando lo paguemos.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- 8. who is making it happen (after chakanafa.org/apoyar): badge.js fills the list from CONFIG.supporters -->
+<section class="section section--small section--classic theme-white" id="quienes">
+  <div class="section__wrap"><div class="section__content">
+    <div class="bdg-people">
+      <h2 class="bdg-people__title" data-i18n="people.title">Quienes lo hacen posible</h2>
+      <ul class="bdg-people__list" data-people hidden></ul>
+      <p class="bdg-people__empty" data-people-empty data-i18n="people.empty">Todavía no hay aportes confirmados. El primero puede ser el tuyo.</p>
+      <p class="bdg-note t-small" data-i18n="people.note">Sumamos cada aporte a mano cuando se confirma el pago. Quien no eligió mostrar su nombre figura como Anónimo.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- 9. good to know, and data and privacy: white, like the footer under it, so the two read as one -->
+<section class="section section--small section--classic theme-white">
   <div class="section__wrap"><div class="section__content">
     <div class="bdg-notes">
       <h2 class="bdg-notes__title" data-i18n="notes.title">Para que sepas</h2>
@@ -353,8 +390,19 @@
         <li data-i18n="notes.1">Las placas ya se están fabricando.</li>
         <li data-i18n="notes.2">Todavía no tenemos fecha de entrega. Te avisamos por mail cuándo y cómo lo recibís.</li>
         <li data-i18n="notes.3">La carcasa todavía está en pruebas: ya imprimimos las primeras en 3D.</li>
-        <li><span data-i18n="notes.4">¿Dudas? Escribinos a</span> <a href="mailto:joyacamp85@gmail.com">joyacamp85@gmail.com</a></li>
+        <li><span data-i18n="notes.4">¿Dudas? Escribinos al</span> <a href="mailto:joyacamp85@gmail.com" data-i18n="notes.4mail">mail</a> <span data-i18n="notes.4or">o a nuestro</span> <a href="https://www.instagram.com/joyacamp" target="_blank" rel="noopener" data-i18n="notes.4instagram">Instagram</a>.</li>
       </ul>
+      <details class="bdg-details">
+        <summary data-i18n="privacy.title">Datos y privacidad</summary>
+        <ul class="bdg-notes__list">
+          <li data-i18n="privacy.1">La página no usa cookies ni estadísticas de visitas. Solo recuerda en tu navegador el idioma que elegiste.</li>
+          <li data-i18n="privacy.2">Cuando mandás tu pedido, guardamos tu nombre, tu mail, cuántos badges pediste y cómo pagás en una planilla de Joya en Google. Lo usamos solo para avisarte cuándo y cómo recibís tu badge.</li>
+          <li data-i18n="privacy.3">El pago lo procesa el medio que elijas, con sus propias reglas. Un pago en cripto queda a la vista de todos en la red.</li>
+          <li data-i18n="privacy.4">Tu nombre aparece en «Quienes lo hacen posible» solo si lo elegís. Si no, figurás como Anónimo.</li>
+          <li data-i18n="privacy.5">La página está en GitHub Pages, que registra las visitas por seguridad.</li>
+          <li data-i18n="privacy.6">¿Querés que borremos tus datos? Escribinos y los borramos.</li>
+        </ul>
+      </details>
     </div>
   </div></div>
 </section>

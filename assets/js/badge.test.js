@@ -27,7 +27,7 @@ const filled = () => ({
   }
 });
 const validOrder = () => ({
-  tier: 'badges', qty: '2', amount: '', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
+  qty: '2', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
 });
 
 test('settings as shipped: nobody can pay yet, so the page is a draft', () => {
@@ -51,28 +51,38 @@ test('a payment method is ready only when its details are complete and its link 
   assert.equal(rules.methodReady(config, 'paypal'), false);
 });
 
-test('badges left: whole badges, never under zero or over the run', () => {
-  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 37 }), 63);
-  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 140 }), 0);
-  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: -3 }), 100);
-  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 12.9 }), 88);
-  assert.equal(rules.maxBadges({ badgesTotal: 100, badgesClaimed: 'x' }), 100);
+test('the badge count comes from the supporters: whole badges, never under zero or over the run', () => {
+  const run = (...badges) => ({ badgesTotal: 100, supporters: badges.map((n) => ({ badges: n })) });
+  assert.deepEqual(rules.progress(run(30, 7)), { claimed: 37, total: 100 });
+  assert.deepEqual(rules.progress(run(90, 50)), { claimed: 100, total: 100 });
+  assert.deepEqual(rules.progress(run(-3, 'x', 0)), { claimed: 0, total: 100 });
+  assert.deepEqual(rules.progress(run(12.9)), { claimed: 12, total: 100 });
+  assert.deepEqual(rules.progress({}), { claimed: 0, total: 0 });
+  assert.equal(rules.maxBadges(run(30, 7)), 63);
+  assert.equal(rules.maxBadges(run(140)), 0);
   assert.equal(rules.maxBadges({}), 0);
+  assert.equal(rules.t('es', 'progress.text', rules.progress(run(37))), '37 de 100 badges pedidos');
+  assert.deepEqual(rules.CONFIG.supporters, [], 'the page ships with nobody on the list');
 });
 
-test('price per badge: USD 24 for one, a dollar less each for every one more, never under USD 18', () => {
+test('Quienes lo hacen posible: the name or Anonymous, what, how, when and how much', () => {
+  const config = { ...rules.CONFIG, supporters: [
+    { name: ' Ana ', badges: 2, via: 'mercadopago', date: '2026-11-21' },
+    { name: '', badges: 3, via: 'venmo', date: '2026-11-20' },
+    { name: '', badges: 1, via: 'nope', date: 'someday' }
+  ] };
+  assert.deepEqual(rules.supporterRows(config, 'es'), [
+    { name: 'Ana', line: '2 badges · Mercado Pago · 21 nov', amount: 'USD 50' },
+    { name: 'Anónimo', line: '3 badges · Venmo · 20 nov', amount: 'USD 75' },
+    { name: 'Anónimo', line: '1 badge', amount: 'USD 25' }
+  ]);
+  assert.deepEqual(rules.supporterRows(config, 'en')[1], { name: 'Anonymous', line: '3 badges · Venmo · Nov 20', amount: 'USD 75' });
+});
+
+test('one price per badge, however many are in the order', () => {
   const config = rules.CONFIG;
-  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 20, 100].map((n) => rules.unitPrice(n, config)), [24, 23, 22, 21, 20, 19, 18, 18, 18, 18]);
-  assert.equal(rules.floorQty(config), 7);
-  assert.equal(rules.unitPrice(0, config), 24);
-  /* buying one more never costs less in total */
-  let last = 0;
-  for (let n = 1; n <= rules.maxBadges(config); n++) {
-    const total = rules.orderTotal({ tier: 'badges', qty: String(n) }, config);
-    assert.ok(total > last, n + ' badges cost ' + total + ', not more than ' + last);
-    assert.ok(total / n >= config.priceFloor);
-    last = total;
-  }
+  assert.equal(config.price, 25);
+  for (const n of [1, 2, 7, 20]) assert.equal(rules.orderTotal({ qty: String(n) }, config), n * 25);
 });
 
 test('counts: whole numbers from 1', () => {
@@ -83,24 +93,12 @@ test('counts: whole numbers from 1', () => {
   }
 });
 
-test('amounts: digits with up to two decimals, comma or point', () => {
-  assert.equal(rules.parseAmount('50'), 50);
-  assert.equal(rules.parseAmount(' 50,5 '), 50.5);
-  assert.equal(rules.parseAmount('50.25'), 50.25);
-  for (const bad of ['', 'abc', '-5', '5.123', '1e3', '5 0', null, undefined]) {
-    assert.ok(Number.isNaN(rules.parseAmount(bad)), String(bad));
-  }
-});
-
 test('totals and how they are written', () => {
   const config = filled();
-  assert.equal(rules.orderTotal({ tier: 'badges', qty: '1' }, config), 24);
-  assert.equal(rules.orderTotal({ tier: 'badges', qty: '3' }, config), 66);
-  assert.equal(rules.orderTotal({ tier: 'badges', qty: '10' }, config), 180);
-  assert.equal(rules.orderTotal({ tier: 'badges', qty: 'x' }, config), 0);
-  assert.equal(rules.orderTotal({ tier: 'donate', amount: '25,5' }, config), 25.5);
-  assert.equal(rules.orderTotal({ tier: 'donate', amount: 'x' }, config), 0);
-  assert.equal(rules.orderTotal({ tier: '' }, config), 0);
+  assert.equal(rules.orderTotal({ qty: '1' }, config), 25);
+  assert.equal(rules.orderTotal({ qty: '3' }, config), 75);
+  assert.equal(rules.orderTotal({ qty: 'x' }, config), 0);
+  assert.equal(rules.orderTotal({}, config), 0);
   assert.equal(rules.formatUsd(60), 'USD 60');
   assert.equal(rules.formatUsd(25.5), 'USD 25.50');
   assert.match(rules.formatArs(60, config), /^ARS 60[.  ]?000$/);
@@ -108,26 +106,21 @@ test('totals and how they are written', () => {
 });
 
 test('empty state: each step says what is missing', () => {
-  const empty = { tier: '', qty: '', amount: '', name: '', email: '', method: '' };
+  const empty = { qty: '', name: '', email: '', method: '' };
   assert.deepEqual(rules.validateStep(1, empty, filled()), { qty: 'err.qty' });
-  assert.deepEqual(rules.validateStep(1, { ...empty, tier: 'badges' }, filled()), { qty: 'err.qty' });
-  assert.deepEqual(rules.validateStep(1, { ...empty, tier: 'donate' }, filled()), { amount: 'err.amount' });
   assert.deepEqual(rules.validateStep(2, empty, filled()), { name: 'err.name', email: 'err.email', method: 'err.method' });
 });
 
 test('validation errors', () => {
   const config = filled();
-  assert.deepEqual(rules.validateStep(1, { tier: 'three' }, config), { qty: 'err.qty' });
+  assert.deepEqual(rules.validateStep(1, {}, config), { qty: 'err.qty' });
   for (const qty of ['', '0', '2.5', 'x']) {
-    assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty }, config), { qty: 'err.qty' }, qty);
+    assert.deepEqual(rules.validateStep(1, { qty }, config), { qty: 'err.qty' }, qty);
   }
   /* more than are left: a message that does not say how many there are */
-  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '101' }, config), { qty: 'err.qtyMax' });
-  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '64' }, { ...config, badgesClaimed: 37 }), { qty: 'err.qtyMax' });
+  assert.deepEqual(rules.validateStep(1, { qty: '101' }, config), { qty: 'err.qtyMax' });
+  assert.deepEqual(rules.validateStep(1, { qty: '64' }, { ...config, supporters: [{ badges: 37 }] }), { qty: 'err.qtyMax' });
   assert.ok(!/\d/.test(rules.WORDS.es['err.qtyMax'] + rules.WORDS.en['err.qtyMax']));
-  for (const amount of ['', 'abc', '4.99', '10001']) {
-    assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount }, config), { amount: 'err.amount' }, amount);
-  }
   assert.deepEqual(rules.validateStep(2, { ...validOrder(), name: '   ' }, config), { name: 'err.name' });
   for (const email of ['ana', 'ana@', 'ana@example', 'a na@example.com']) {
     assert.deepEqual(rules.validateStep(2, { ...validOrder(), email }, config), { email: 'err.email' }, email);
@@ -140,31 +133,45 @@ test('valid submission: every step passes and the email holds the order', () => 
   const config = filled();
   const order = validOrder();
   for (const step of [1, 2]) assert.deepEqual(rules.validateStep(step, order, config), {}, 'step ' + step);
-  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '1' }, config), {});
-  assert.deepEqual(rules.validateStep(1, { tier: 'badges', qty: '100' }, config), {});
-  assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '5' }, config), {});
-  assert.deepEqual(rules.validateStep(1, { tier: 'donate', amount: '10000' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { qty: '1' }, config), {});
+  assert.deepEqual(rules.validateStep(1, { qty: '100' }, config), {});
 
-  const text = rules.orderText(order, config, 'en', 'JOYA-TEST0001');
+  const text = rules.orderText(order, config, 'es', 'JOYA-TEST0001');
   assert.deepEqual(text.split('\n'), [
-    '2 badges, USD 23 each',
-    'Total: USD 46',
-    'Payment method: Venmo',
-    'Code: JOYA-TEST0001',
-    'Name: Ana Test',
-    'Email: ana@example.com'
+    '2 badges, USD 25 cada uno',
+    'Total: USD 50',
+    'Medio de pago: Venmo',
+    'Código: JOYA-TEST0001',
+    'Nombre: Ana Test',
+    'Email: ana@example.com',
+    'Mostrar mi nombre en la lista: no'
   ]);
+  assert.ok(rules.orderText({ ...order, public: true }, config, 'es', 'X').endsWith('Mostrar mi nombre en la lista: sí'));
   const url = rules.mailtoUrl(order, config, 'es', 'JOYA-TEST0001');
   assert.ok(url.startsWith('mailto:' + config.orderEmail + '?subject=Pedido%20Joya%20Badge%20JOYA-TEST0001&body='));
   assert.equal(decodeURIComponent(url.split('&body=')[1]), rules.orderText(order, config, 'es', 'JOYA-TEST0001'));
-  assert.deepEqual(rules.orderItems({ tier: 'donate' }, config, 'es'), ['Donación']);
-  assert.deepEqual(rules.orderItems({ tier: 'badges', qty: '1' }, config, 'es'), ['Un badge']);
-  assert.deepEqual(rules.orderItems({ tier: 'badges', qty: '8' }, config, 'es'), ['8 badges, USD 18 cada uno']);
+  assert.deepEqual(rules.orderItems({ qty: '1' }, config, 'es'), ['Un badge']);
+  assert.deepEqual(rules.orderItems({ qty: '8' }, config, 'es'), ['8 badges, USD 25 cada uno']);
+});
+
+test('the buyers Sheet: one row per order, and only a Google Apps Script address gets it', () => {
+  const config = filled();
+  assert.deepEqual(rules.orderRecord({ ...validOrder(), name: ' Ana Test ', public: true }, config, 'es', 'JOYA-TEST0001'), {
+    ref: 'JOYA-TEST0001', name: 'Ana Test', email: 'ana@example.com', qty: 2, total: 50, method: 'venmo', public: true, lang: 'es'
+  });
+  assert.equal(rules.orderRecord(validOrder(), config, 'en', 'X').public, false);
+  assert.equal(rules.CONFIG.orderSheetUrl, '', 'the page ships without a Sheet: set it once the script is deployed');
+  assert.equal(rules.sheetUrl(rules.CONFIG), '');
+  const good = 'https://script.google.com/macros/s/AKfycbx-Test_123/exec';
+  assert.equal(rules.sheetUrl({ orderSheetUrl: good }), good);
+  for (const bad of ['http://script.google.com/macros/s/AKfycbx/exec', 'https://evil.example/macros/s/x/exec', 'https://script.google.com/macros/s/x/dev', 'javascript:alert(1)']) {
+    assert.equal(rules.sheetUrl({ orderSheetUrl: bad }), '', bad);
+  }
 });
 
 test('what a visitor types cannot break out of the email link', () => {
   const order = { ...validOrder(), name: 'Ana&cc=x@example.com\nBcc: y@example.com' };
-  const url = rules.mailtoUrl(order, filled(), 'en', 'JOYA-TEST0001');
+  const url = rules.mailtoUrl(order, filled(), 'es', 'JOYA-TEST0001');
   assert.equal(url.split('?')[1].split('&').length, 2);
   assert.ok(!/[\n\r]/.test(url));
 });
@@ -178,19 +185,29 @@ test('links and codes', () => {
   assert.match(rules.newReference(require('node:crypto')), /^JOYA-[0-9A-F]{8}$/);
 });
 
-test('language: query first, then the stored choice, then Spanish', () => {
-  assert.equal(rules.pickLang('en', 'es'), 'en');
-  assert.equal(rules.pickLang(null, 'en'), 'en');
-  assert.equal(rules.pickLang('fr', null), 'es');
-  assert.equal(rules.t('en', 'err.amount', { min: 5 }), 'Enter an amount of USD 5 or more.');
+test('language: the address first, then the stored choice, then the time zone, then the browser', () => {
+  assert.equal(rules.pickLang('en', 'es', 'America/Argentina/Buenos_Aires', ['es-AR']), 'en');
+  assert.equal(rules.pickLang(null, 'en', 'America/Argentina/Buenos_Aires', ['es-AR']), 'en');
+  assert.equal(rules.pickLang('fr', 'de', 'America/Argentina/Cordoba', ['en-US']), 'es');
+  assert.equal(rules.pickLang(null, null, 'America/Buenos_Aires', []), 'es');
+  for (const zone of ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Indiana/Indianapolis', 'Pacific/Honolulu', 'US/Pacific']) {
+    assert.equal(rules.pickLang(null, null, zone, ['es-US']), 'en', zone);
+  }
+  assert.equal(rules.pickLang(null, null, 'Europe/Madrid', ['es-ES']), 'es');
+  assert.equal(rules.pickLang(null, null, 'Europe/Berlin', ['de-DE', 'en']), 'en');
+  assert.equal(rules.pickLang(null, null, 'America/Mexico_City', ['es-MX']), 'es');
+  assert.equal(rules.pickLang(null, null, '', undefined), 'es');
+  assert.equal(rules.t('en', 'err.qty'), rules.WORDS.en['err.qty']);
   assert.equal(rules.t('es', 'no.such.key'), 'no.such.key');
 });
 
 test('Spanish and English hold the same sentences, none empty', () => {
+  assert.deepEqual(Object.keys(rules.WORDS), ['es', 'en']);
   assert.deepEqual(Object.keys(rules.WORDS.en).sort(), Object.keys(rules.WORDS.es).sort());
   for (const lang of ['es', 'en']) {
     for (const [key, text] of Object.entries(rules.WORDS[lang])) assert.ok(text.trim(), lang + ' ' + key);
   }
+  assert.equal(attrValues('data-lang').join(), 'es,en', 'the switch offers another set of languages');
 });
 
 test('badge.html asks only for sentences that exist, and starts in Spanish', () => {
@@ -222,30 +239,41 @@ test('a marked sentence is written in badge.html as the script writes it, with t
 });
 
 test('badge.html matches the settings', () => {
-  assert.deepEqual(attrValues('data-preset').map(Number), rules.CONFIG.donationPresets);
   assert.deepEqual(attrValues('data-method'), rules.METHOD_IDS);
-  assert.ok(html.includes('name="donate"'), 'no box for a donation only');
-  for (const name of ['qty', 'amount', 'name', 'email', 'method']) {
+  assert.ok(!/name="(donate|amount)"|data-preset/.test(html), 'the donate only option is back');
+  assert.ok(html.includes('name="public"'), 'no box to show the name on the list');
+  for (const name of ['qty', 'name', 'email', 'method']) {
     assert.ok(html.includes('name="' + name + '"'), 'no input named ' + name);
     assert.ok(html.includes('data-error="' + name + '"'), 'no error box for ' + name);
     assert.ok(html.includes('data-field="' + name + '"'), 'no focus target for ' + name);
   }
   assert.ok(html.includes('mailto:' + rules.CONFIG.orderEmail));
   assert.ok(html.includes(NOINDEX), 'the draft must stay out of search');
-  const one = rules.formatUsd(rules.unitPrice(1, rules.CONFIG));
+  const one = rules.formatUsd(rules.CONFIG.price);
   assert.ok(html.includes('data-qty-total>' + rules.t('es', 'qty.total', { total: one }) + '<'), 'first total differs from the settings');
   assert.ok(html.includes('data-qty-each>' + rules.t('es', 'qty.each', { unit: one }) + '<'), 'first price differs from the settings');
   assert.ok(html.includes('value="1" data-field="qty"'), 'the picker starts at one');
+  const run = rules.progress(rules.CONFIG);
+  assert.ok(html.includes('data-progress-text>' + rules.t('es', 'progress.text', run) + '<'), 'badge count differs from the settings');
+  assert.ok(html.includes('max="' + run.total + '" value="' + run.claimed + '"'), 'bar differs from the settings');
 });
 
-test('the page never says how many badges there are', () => {
-  const cap = String(rules.CONFIG.badgesTotal);
+test('what each badge pays for adds up to its price, and every sentence in both languages names that price', () => {
+  const cents = (text) => Math.round(Number(text.replace('−', '-').replace(',', '.')) * 100);   // "−1,75" = -175
+  const rows = Array.from(html.matchAll(/<td data-usd="(-?[\d.]+)">([−\d,]+)<\/td>/g));
+  assert.ok(rows.length >= 3, 'the costs table is missing');
+  for (const [, value, shown] of rows) assert.equal(cents(shown), cents(value), 'a cost shows ' + shown + ' but counts ' + value);
+  const [, total, totalShown] = html.match(/<td data-usd-total="([\d.]+)">([\d,]+)<\/td>/);
+  assert.equal(cents(totalShown), cents(total));
+  assert.equal(cents(total), rules.CONFIG.price * 100, 'the table ends on another price');
+  assert.equal(rows.reduce((sum, [, value]) => sum + cents(value), 0), cents(total), 'the lines do not add up to the price');
   for (const lang of ['es', 'en']) {
-    for (const [key, text] of Object.entries(rules.WORDS[lang])) assert.ok(!new RegExp('\\b' + cap + '\\b').test(text), lang + ' ' + key);
+    for (const [key, text] of Object.entries(rules.WORDS[lang])) {
+      for (const [, amount] of text.matchAll(/USD[\s\u00a0](\d+)\b/g)) {
+        if (key.startsWith('costs.') || key === 'qty.why') assert.equal(Number(amount), rules.CONFIG.price, lang + ' ' + key + ' names another price');
+      }
+    }
   }
-  const visible = html.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/USD 100/g, '');
-  assert.ok(!new RegExp('\\b' + cap + '\\b').test(visible), 'badge.html shows ' + cap);
-  assert.ok(!/<progress/.test(html));
 });
 
 test('every file badge.html points to is in the repository', () => {

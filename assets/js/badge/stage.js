@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { MM_W, MM_H, padAbs, boardFaceMaterial, setFaceUvs } from './textures.js';
 import { buildPart } from './parts.js';
 import { buildCase } from './case.js';
+import { buildCover, COVERS } from './cover.js';
 import { Sim, PALETTES } from './sim.js';
 import { createLedGlow } from './glow.js';
 
@@ -15,8 +16,9 @@ const OUTLINE = [[37.5, 0], [75, 37.5], [54.5, 59.3], [20.5, 59.3], [0, 37.5]];
 const FOV = 28;
 const GAP = 9; // mm between two layers of the board when it is taken apart (the real board is 1 mm thick)
 // spin turns the badge about its upright axis, tilt leans it back, dist is the camera distance in mm and
-// look the height the camera aims at: whole, the lanyard rises above the badge, so the camera looks higher
-const FACE = { spin: 0.42, tilt: -0.12, dist: 252, look: 21 };
+// look the height the camera aims at: whole, the middle of the badge from its bottom to the clamp's top, so it
+// sits centred in the stage; the lanyard runs on up the page above it
+const FACE = { spin: 0.42, tilt: -0.12, dist: 252, look: 8 };
 const APART = { spin: -0.4, tilt: -1.02, dist: 390, look: -22 };
 // a narrow viewer (a phone) stands further back when apart, as the names take more of its width
 const NARROW_PX = 480;
@@ -37,6 +39,11 @@ const LED_LIGHT = 5; // candela of the point light over each LED: the glow (glow
 const MM_PER_DIST = 1 / (2 * Math.tan((FOV / 2) * (Math.PI / 180))); // screen heights per mm, times the camera distance
 const STUDIO = 0.85;
 const TILT_RANGE = [-1.45, 0.5];
+const MAX_REACH = 1.5; // the canvas reaches at most this many stage heights above the stage
+// the front cover its button puts on (cover.js): frost, dots or glow are covers 1, 2 and 3 of print plate 7.
+// It sits on the shell's rim (board front 0.5 + rim 0.8), its frame's outside on the shell's outside
+// (clearance 0.25 + wall 1.6) and its window over the board's pocket (clearance 0.25): make_case.py's numbers
+const COVER = { kind: 'dots', rimTop: 1.3, outset: 1.85, inset: 0.25, drop: 24 };
 const GOLD = '#e8c06a';
 
 const smooth = (v) => {
@@ -210,9 +217,20 @@ export const mountViewer = async (root) => {
     led.group.add(led.light);
   }
   // ---- the rest of the badge: shell, battery, clamp and lanyard ----
-  const kit = buildCase(caseData, aniso);
+  const kit = buildCase(caseData);
   const batteryZ = kit.battery.position.z;
   badge.add(kit.shell, kit.battery, kit.clamp);
+  // ---- the front cover, put on and taken off with its button ----
+  const cover = buildCover({
+    outline: OUTLINE,
+    spec: COVERS[COVER.kind],
+    rimTop: COVER.rimTop,
+    outset: COVER.outset,
+    inset: COVER.inset,
+    frameMaterial: kit.shell.children[0].material,
+    spots: out.leds.map((led) => new THREE.Vector2(led.group.position.x, led.group.position.y)),
+  });
+  badge.add(cover.group);
   // the light the LEDs give off, over the whole stage (glow.js)
   const glow = createLedGlow(out.leds.length);
   scene.add(glow.mesh);
@@ -258,10 +276,11 @@ export const mountViewer = async (root) => {
   };
 
   // ---- state: what is on screen eases toward the target ----
-  const state = { ...FACE, explode: 0 };
-  const target = { ...FACE, explode: 0 };
+  const state = { ...FACE, explode: 0, cover: 0 };
+  const target = { ...FACE, explode: 0, cover: 0 };
   let dragging = null;
   let lastTouch = -1e9;
+  const view = { size: 0, reach: 0 }; // the stage's width and how far the canvas reaches above it, in px
   let sway = 0;
 
   // each part's name, beside its right-hand corner: the board's layers, the battery, the shell, the clamp
@@ -278,9 +297,11 @@ export const mountViewer = async (root) => {
     for (const mark of marks) {
       markAt(mark.getAttribute('data-layer-mark')).applyMatrix4(badge.matrixWorld).project(camera);
       const left = (corner.x * 0.5 + 0.5) * 100;
+      // the canvas runs `reach` px above the stage: from its top down, less that, over the stage's height
+      const top = ((-corner.y * 0.5 + 0.5) * (view.size + view.reach) - view.reach) / view.size;
       mark.style.left = left.toFixed(2) + '%';
       mark.style.maxWidth = `calc(${(100 - left).toFixed(2)}% - .6rem)`; // a name near the right edge wraps
-      mark.style.top = ((-corner.y * 0.5 + 0.5) * 100).toFixed(2) + '%';
+      mark.style.top = (top * 100).toFixed(2) + '%';
       mark.style.opacity = smooth((state.explode - 0.6) / 0.4).toFixed(3);
     }
   };
@@ -296,8 +317,8 @@ export const mountViewer = async (root) => {
     kit.battery.position.z = batteryZ + OUT.battery * apart;
     kit.shell.position.z = OUT.shell * apart;
     kit.clamp.position.set(...OUT.clamp.map((v) => v * apart));
-    kit.ribbon.material.opacity = 1 - smooth(apart * 2.5); // the lanyard goes before the parts come apart
-    kit.ribbon.visible = kit.ribbon.material.opacity > 0.01;
+    kit.lanyard.material.opacity = 1 - smooth(apart * 2.5); // the lanyard goes before the parts come apart
+    kit.lanyard.visible = kit.lanyard.material.opacity > 0.01;
     const spin = state.spin + sway * 0.2 * Math.sin((now / 9000) * Math.PI * 2);
     badge.rotation.set(state.tilt, spin, 0);
     const shift = SHIFT[stageBox.clientWidth < NARROW_PX ? 'narrow' : 'wide'] * apart;
@@ -309,9 +330,14 @@ export const mountViewer = async (root) => {
     fill.intensity = (0.35 + 0.65 * back) * STUDIO;
     scene.environmentIntensity = (0.8 + 0.45 * back) * STUDIO;
     showLights();
+    // the cover comes down onto the front, and goes with the lanyard when the parts come apart
+    const covered = smooth(state.cover) * (1 - smooth(apart * 2.5));
+    cover.fade(covered);
+    cover.group.position.z = (1 - smooth(state.cover)) * COVER.drop;
+    cover.light(out.leds.map((led) => led.color));
     badge.updateMatrixWorld(true);
     camera.updateMatrixWorld(true);
-    glow.update(out.leds, layer.leds, camera, MM_PER_DIST / state.dist);
+    glow.update(out.leds, layer.leds, camera, MM_PER_DIST / state.dist, (view.size + view.reach) / view.size, covered); // under the cover, its window carries the light
     placeMarks();
     renderer.render(scene, camera);
   };
@@ -320,7 +346,7 @@ export const mountViewer = async (root) => {
   const step = (dt, now) => {
     const k = reduced.matches ? 1 : 1 - Math.exp(-dt * 6);
     let moving = false;
-    for (const name of ['spin', 'tilt', 'dist', 'look', 'explode']) {
+    for (const name of ['spin', 'tilt', 'dist', 'look', 'explode', 'cover']) {
       const held = dragging && (name === 'spin' || name === 'tilt');
       state[name] += (target[name] - state[name]) * (held ? 1 : k);
       if (Math.abs(target[name] - state[name]) > 1e-4) moving = true;
@@ -355,22 +381,36 @@ export const mountViewer = async (root) => {
   document.addEventListener('visibilitychange', schedule);
   reduced.addEventListener('change', schedule);
 
+  // The canvas reaches from the stage's foot up to the top of the page, so the lanyard runs on up behind the
+  // menu. The square at its foot is the stage and shows just what a square canvas would: the camera's view is
+  // that square's, made `reach` taller above and below, and drawn from its top down to the stage's foot.
   const resize = () => {
     const size = Math.max(1, Math.round(stageBox.clientWidth));
-    renderer.setSize(size, size, false);
+    const reach = Math.round(Math.min(size * MAX_REACH, Math.max(0, stageBox.getBoundingClientRect().top + window.scrollY)));
+    if (size === view.size && reach === view.reach) return;
+    Object.assign(view, { size, reach });
+    stageBox.style.setProperty('--bdg-3d-reach', reach + 'px');
+    renderer.setSize(size, size + reach, false);
+    const full = size + 2 * reach;
+    camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * full / size));
+    camera.aspect = size / full;
+    camera.setViewOffset(size, full, 0, 0, size, size + reach);
     draw(performance.now());
     schedule();
   };
-  new ResizeObserver(resize).observe(stageBox);
+  const resizes = new ResizeObserver(resize);
+  resizes.observe(stageBox);
+  resizes.observe(document.body); // what sits above the stage can change height without the stage changing
 
-  // ---- drag to turn ----
-  canvas.addEventListener('pointerdown', (event) => {
+  // ---- drag to turn: on the stage only, not on the canvas above it ----
+
+  stageBox.addEventListener('pointerdown', (event) => {
     dragging = { id: event.pointerId, x: event.clientX, y: event.clientY };
-    canvas.setPointerCapture(event.pointerId);
+    stageBox.setPointerCapture(event.pointerId);
     lastTouch = performance.now();
     schedule();
   });
-  canvas.addEventListener('pointermove', (event) => {
+  stageBox.addEventListener('pointermove', (event) => {
     if (!dragging || event.pointerId !== dragging.id) return;
     const scale = 3.2 / Math.max(200, stageBox.clientWidth);
     target.spin += (event.clientX - dragging.x) * scale;
@@ -383,12 +423,13 @@ export const mountViewer = async (root) => {
     dragging = null;
     lastTouch = performance.now();
   };
-  canvas.addEventListener('pointerup', release);
-  canvas.addEventListener('pointercancel', release);
+  stageBox.addEventListener('pointerup', release);
+  stageBox.addEventListener('pointercancel', release);
 
   // ---- buttons ----
   const flipButton = root.querySelector('[data-viewer-flip]');
   const layersButton = root.querySelector('[data-viewer-layers]');
+  const coverButton = root.querySelector('[data-viewer-cover]');
   flipButton.addEventListener('click', () => {
     target.spin += Math.PI;
     lastTouch = performance.now();
@@ -401,6 +442,14 @@ export const mountViewer = async (root) => {
     const front = nearestFront(target.spin);
     const dist = stageBox.clientWidth < NARROW_PX ? NARROW_DIST : APART.dist;
     Object.assign(target, apart ? { ...APART, dist, spin: front + APART.spin, explode: 1 } : { ...FACE, spin: front + FACE.spin, explode: 0 });
+    lastTouch = performance.now();
+    schedule();
+  });
+
+  coverButton.addEventListener('click', () => {
+    const on = coverButton.getAttribute('aria-pressed') !== 'true';
+    coverButton.setAttribute('aria-pressed', String(on));
+    target.cover = on ? 1 : 0;
     lastTouch = performance.now();
     schedule();
   });
