@@ -160,8 +160,8 @@ test('the buyers Sheet: one row per order, and only a Google Apps Script address
     ref: 'JOYA-TEST0001', name: 'Ana Test', email: 'ana@example.com', qty: 2, total: 50, method: 'venmo', public: true, lang: 'es'
   });
   assert.equal(rules.orderRecord(validOrder(), config, 'en', 'X').public, false);
-  assert.equal(rules.CONFIG.orderSheetUrl, '', 'the page ships without a Sheet: set it once the script is deployed');
-  assert.equal(rules.sheetUrl(rules.CONFIG), '');
+  assert.equal(rules.sheetUrl(rules.CONFIG), rules.CONFIG.orderSheetUrl, 'the Sheet address in the settings is not a Google Apps Script web app');
+  assert.ok(rules.CONFIG.orderSheetUrl, 'the page has no Sheet to save orders to');
   const good = 'https://script.google.com/macros/s/AKfycbx-Test_123/exec';
   assert.equal(rules.sheetUrl({ orderSheetUrl: good }), good);
   for (const bad of ['http://script.google.com/macros/s/AKfycbx/exec', 'https://evil.example/macros/s/x/exec', 'https://script.google.com/macros/s/x/dev', 'javascript:alert(1)']) {

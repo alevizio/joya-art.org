@@ -20,10 +20,10 @@
     price: 25,                       // USD for each badge, however many are in the order
     arsPerUsd: null,                 // pesos per dollar, e.g. 1450. null shows "to be confirmed"
     orderEmail: 'joyacamp85@gmail.com',
-    /* The Google Sheet in joyacamp85@gmail.com that keeps every order, to email everyone when the badges are
-       ready: the web app address its script gives (https://script.google.com/macros/s/.../exec). Empty saves
-       nothing; the order email still goes out. The script is in ~/Documents/joya-badge-fundraiser/sheet. */
-    orderSheetUrl: '',
+    /* The Google Sheet "Joya Badge pedidos" in joyacamp85@gmail.com keeps every order, to email everyone
+       when the badges are ready: this is the web app address its script gives. Empty saves nothing; the
+       order email still goes out. The script is in ~/Documents/joya-badge-fundraiser/sheet. */
+    orderSheetUrl: 'https://script.google.com/macros/s/AKfycbw9Q4T-J5FWOVNwkjHuh7ZsE8HYMsJTvhRVw9Hwh5q7ExercZ0-09CVlUFmZTjp-p4a/exec',
     badgesTotal: 100,                // the boards that were ordered: the most that can be asked for, and the end of the bar in the hero
     /* Everyone who paid, newest first, added by hand once the payment shows up. It fills "Quienes lo hacen
        posible" and the bar in the hero (the badges here are the ones claimed). name: only if the order email
