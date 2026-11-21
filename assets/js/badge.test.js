@@ -260,9 +260,17 @@ test('badge.html matches the settings', () => {
 
 test('what each badge pays for adds up to its price, and every sentence in both languages names that price', () => {
   const cents = (text) => Math.round(Number(text.replace('−', '-').replace(',', '.')) * 100);   // "−1,75" = -175
-  const rows = Array.from(html.matchAll(/<td data-usd="(-?[\d.]+)">([−\d,]+)<\/td>/g));
+  const rows = Array.from(html.matchAll(/<td data-usd="(-?[\d.]+)"/g));
   assert.ok(rows.length >= 3, 'the costs table is missing');
-  for (const [, value, shown] of rows) assert.equal(cents(shown), cents(value), 'a cost shows ' + shown + ' but counts ' + value);
+  for (const [, value, shown] of html.matchAll(/<td data-usd="(-?[\d.]+)">([−\d,]+)<\/td>/g)) {
+    assert.equal(cents(shown), cents(value), 'a cost shows ' + shown + ' but counts ' + value);
+  }
+  /* Joya's share is a range: today's gap, up to what the final quotes may make it, in both languages */
+  const [, from, upto] = html.match(/<td data-usd="(-[\d.]+)" data-usd-upto="(-[\d.]+)"><span data-i18n="costs\.joya\.range">/);
+  assert.ok(cents(upto) < cents(from));
+  const amounts = (text) => Array.from(text.matchAll(/−(\d+[.,]\d\d)/g), (m) => cents('-' + m[1]));
+  assert.deepEqual(amounts(rules.WORDS.es['costs.joya.range']), [cents(from), cents(upto)]);
+  assert.deepEqual(amounts(rules.WORDS.en['costs.joya.range']), [cents(from), cents(upto)]);
   const [, total, totalShown] = html.match(/<td data-usd-total="([\d.]+)">([\d,]+)<\/td>/);
   assert.equal(cents(totalShown), cents(total));
   assert.equal(cents(total), rules.CONFIG.price * 100, 'the table ends on another price');

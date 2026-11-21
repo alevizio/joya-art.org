@@ -326,8 +326,9 @@
   </div></div>
 </section>
 
-<!-- 7. what each badge's USD 25 pays for (after chakanafa.org's budget page). The lines must add up to
-     CONFIG.price in badge.js: badge.test.js checks it. "Pagado" = already paid, "Estimado" = quoted or worked out -->
+<!-- 7. what each badge's USD 25 pays for (after chakanafa.org's budget page). The data-usd values must add up
+     to CONFIG.price in badge.js: badge.test.js checks it. "Pagado" = already paid, "Estimado" = quoted or
+     worked out. Joya's share shows a range, today's gap up to data-usd-upto, as the final quotes may grow it -->
 <section class="section section--small section--classic theme-white" id="costos">
   <div class="section__wrap"><div class="section__content">
     <div class="bdg-costs">
@@ -356,8 +357,8 @@
             <td data-usd="0.80">0,80</td>
           </tr>
           <tr class="bdg-costs__joya">
-            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.joya">Lo que pone Joya</span><span class="bdg-costs__detail" data-i18n="costs.joya.detail">Para que cada badge salga USD 25</span></th>
-            <td data-usd="-1.75">−1,75</td>
+            <th scope="row"><span class="bdg-costs__name" data-i18n="costs.joya">Lo que pone Joya</span><span class="bdg-costs__detail" data-i18n="costs.joya.detail">Según los presupuestos finales, para que cada badge salga USD 25</span></th>
+            <td data-usd="-1.75" data-usd-upto="-5"><span data-i18n="costs.joya.range">−1,75 a −5,00</span></td>
           </tr>
         </tbody>
         <tfoot>

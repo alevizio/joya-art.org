@@ -787,6 +787,10 @@
 /* Joya's share is a minus: muted, so it reads as what Joya takes off, not as a cost */
 .bdg-costs__joya th,
 .bdg-costs__joya td { color: var(--bdg-muted); }
+/* its range breaks after the first amount on a narrow phone, which has no room for both */
+@media (max-width: 479px) {
+  .bdg-costs__joya td { white-space: normal; }
+}
 .bdg-costs__table tfoot th,
 .bdg-costs__table tfoot td { border-top-color: var(--text); font-family: var(--font-heading); }
 .bdg-costs__table tfoot th { font-size: 1.5rem; line-height: 1.2; }
