@@ -17,11 +17,12 @@ const attrValues = (name) => Array.from(html.matchAll(new RegExp('\\s' + name + 
 /* A settings object with every payment method filled in, for the cases that need one. */
 const filled = () => ({
   ...rules.CONFIG,
+  supporters: [],
   pricesConfirmed: true,
   arsPerUsd: 1000,
   methods: {
     mercadopago: { alias: 'joya.test', link: 'https://mpago.la/test' },
-    crypto: { coin: 'USDT', network: 'Tron (TRC20)', address: 'TTestAddress' },
+    crypto: [{ coin: 'USDT', network: 'Tron (TRC20)', address: 'TTestAddress' }],
     venmo: { handle: '@joya-test' },
     wise: { link: 'https://wise.com/pay/test' }
   }
@@ -30,9 +31,21 @@ const validOrder = () => ({
   qty: '2', name: 'Ana Test', email: 'ana@example.com', method: 'venmo'
 });
 
-test('settings as shipped: nobody can pay yet, so the page is a draft', () => {
-  for (const id of rules.METHOD_IDS) assert.equal(rules.methodReady(rules.CONFIG, id), false, id);
-  assert.equal(rules.isDraft(rules.CONFIG), true);
+test('settings as shipped: every payment method is ready', () => {
+  const mp = rules.CONFIG.methods.mercadopago;
+  assert.equal(mp.alias, 'joya.camp');
+  assert.match(mp.cvu, /^\d{22}$/);
+  assert.ok(mp.holder);
+  assert.match(rules.safeUrl(mp.link), /^https:\/\/mpago\.la\/\w+$/);
+  assert.equal(rules.CONFIG.methods.venmo.handle, 'alevizio');
+  assert.equal(rules.safeUrl(rules.CONFIG.methods.wise.link), 'https://wise.com/pay/me/alejandrov1131');
+  assert.deepEqual(rules.CONFIG.methods.crypto.map((w) => w.coin + ' ' + w.network), ['BTC Bitcoin', 'USDC Ethereum']);
+  assert.match(rules.CONFIG.methods.crypto[0].address, /^[13][1-9A-HJ-NP-Za-km-z]{25,34}$/);
+  assert.match(rules.CONFIG.methods.crypto[1].address, /^0x[0-9a-fA-F]{40}$/);
+  assert.equal(rules.formatArs(rules.CONFIG.price, rules.CONFIG), 'ARS 42.500');
+  for (const id of rules.METHOD_IDS) assert.equal(rules.methodReady(rules.CONFIG, id), true, id);
+  assert.equal(rules.isDraft(rules.CONFIG), false);
+  assert.equal(rules.isDraft({ ...rules.CONFIG, methods: {} }), true);
   assert.equal(rules.isDraft(filled()), false);
   assert.equal(rules.isDraft({ ...filled(), pricesConfirmed: false }), true);
 });
@@ -44,7 +57,9 @@ test('a payment method is ready only when its details are complete and its link 
   assert.equal(rules.methodReady(config, 'wise'), false);
   config.methods.wise.link = 'javascript:alert(1)';
   assert.equal(rules.methodReady(config, 'wise'), false);
-  config.methods.crypto.network = '';
+  config.methods.crypto[0].network = '';
+  assert.equal(rules.methodReady(config, 'crypto'), false);
+  config.methods.crypto = [];
   assert.equal(rules.methodReady(config, 'crypto'), false);
   config.methods.mercadopago = { alias: '', link: 'javascript:alert(1)' };
   assert.equal(rules.methodReady(config, 'mercadopago'), false);
@@ -62,7 +77,8 @@ test('the badge count comes from the supporters: whole badges, never under zero 
   assert.equal(rules.maxBadges(run(140)), 0);
   assert.equal(rules.maxBadges({}), 0);
   assert.equal(rules.t('es', 'progress.text', rules.progress(run(37))), '37 de 100 badges pedidos');
-  assert.deepEqual(rules.CONFIG.supporters, [], 'the page ships with nobody on the list');
+  assert.deepEqual(rules.progress(rules.CONFIG), { claimed: 5, total: 100 }, 'the page ships with the five prototype badges');
+  assert.deepEqual(rules.supporterRows(rules.CONFIG, 'es'), [{ name: 'Anónimo', line: '5 badges', amount: 'USD 125' }]);
 });
 
 test('Quienes lo hacen posible: the name or Anonymous, what, how, when and how much', () => {
@@ -93,6 +109,21 @@ test('counts: whole numbers from 1', () => {
   }
 });
 
+test('the peso price follows the live dólar MEP, a badge rounded up to the next 500 pesos', () => {
+  const config = rules.CONFIG;
+  const badge = (mep) => rules.formatArs(config.price, rules.priced(config, rules.liveRate(config, mep)));
+  assert.equal(badge(1695.1), 'ARS 42.500');
+  assert.equal(badge(1700), 'ARS 42.500');
+  assert.equal(badge(1710), 'ARS 43.000');
+  assert.equal(badge(1800), 'ARS 45.000');
+  assert.equal(rules.formatArs(75, rules.priced(config, 1710)), 'ARS 129.000');
+  /* no answer, or one far off: the fixed rate */
+  for (const bad of [undefined, null, '', 'x', 0, -5, 17, 99999]) assert.equal(badge(bad), 'ARS 42.500', String(bad));
+  assert.equal(rules.priced(config, 0), config);
+  assert.equal(config.arsRateUrl, 'https://dolarapi.com/v1/dolares/bolsa');
+  assert.equal(rules.safeUrl(config.arsRateSource), 'https://dolarapi.com');
+});
+
 test('totals and how they are written', () => {
   const config = filled();
   assert.equal(rules.orderTotal({ qty: '1' }, config), 25);
@@ -102,7 +133,7 @@ test('totals and how they are written', () => {
   assert.equal(rules.formatUsd(60), 'USD 60');
   assert.equal(rules.formatUsd(25.5), 'USD 25.50');
   assert.match(rules.formatArs(60, config), /^ARS 60[.  ]?000$/);
-  assert.equal(rules.formatArs(60, rules.CONFIG), '');
+  assert.equal(rules.formatArs(60, { ...config, arsPerUsd: null }), '');
 });
 
 test('empty state: each step says what is missing', () => {
@@ -126,7 +157,8 @@ test('validation errors', () => {
     assert.deepEqual(rules.validateStep(2, { ...validOrder(), email }, config), { email: 'err.email' }, email);
   }
   /* a method that is not set up cannot be picked, even if the page is tampered with */
-  assert.deepEqual(rules.validateStep(2, validOrder(), rules.CONFIG), { method: 'err.method' });
+  const noCrypto = { ...rules.CONFIG, methods: { ...rules.CONFIG.methods, crypto: [] } };
+  assert.deepEqual(rules.validateStep(2, { ...validOrder(), method: 'crypto' }, noCrypto), { method: 'err.method' });
 });
 
 test('valid submission: every step passes and the email holds the order', () => {
@@ -147,6 +179,8 @@ test('valid submission: every step passes and the email holds the order', () => 
     'Mostrar mi nombre en la lista: no'
   ]);
   assert.ok(rules.orderText({ ...order, public: true }, config, 'es', 'X').endsWith('Mostrar mi nombre en la lista: sí'));
+  /* a Mercado Pago order also says the pesos the buyer saw */
+  assert.deepEqual(rules.orderText({ ...order, method: 'mercadopago' }, config, 'es', 'X').split('\n').slice(1, 4), ['Total: USD 50', 'En pesos: ARS 50.000', 'Medio de pago: Mercado Pago']);
   const url = rules.mailtoUrl(order, config, 'es', 'JOYA-TEST0001');
   assert.ok(url.startsWith('mailto:' + config.orderEmail + '?subject=Pedido%20Joya%20Badge%20JOYA-TEST0001&body='));
   assert.equal(decodeURIComponent(url.split('&body=')[1]), rules.orderText(order, config, 'es', 'JOYA-TEST0001'));
@@ -180,9 +214,12 @@ test('links and codes', () => {
   assert.equal(rules.venmoUrl('@joya-test', 110, 'JOYA-TEST0001'), 'https://venmo.com/joya-test?txn=pay&amount=110.00&note=JOYA-TEST0001');
   assert.equal(rules.safeUrl('https://wise.com/pay/x'), 'https://wise.com/pay/x');
   for (const bad of ['http://wise.com', 'javascript:alert(1)', 'https://a b', '', null]) assert.equal(rules.safeUrl(bad), '');
-  const ref = rules.newReference({ randomUUID: () => '0a1b2c3d-4e5f-6789-abcd-ef0123456789' });
-  assert.equal(ref, 'JOYA-0A1B2C3D');
-  assert.match(rules.newReference(require('node:crypto')), /^JOYA-[0-9A-F]{8}$/);
+  const fixed = (value) => ({ getRandomValues: (a) => { a[0] = value; return a; } });
+  assert.equal(rules.newReference(fixed(0)), 'JOYA-100');
+  assert.equal(rules.newReference(fixed(319)), 'JOYA-419');
+  assert.equal(rules.newReference(fixed(899)), 'JOYA-999');
+  assert.equal(rules.newReference(fixed(4294967295)), 'JOYA-' + (100 + 4294967295 % 900));
+  for (let i = 0; i < 200; i++) assert.match(rules.newReference(require('node:crypto')), /^JOYA-[1-9]\d{2}$/);
 });
 
 test('language: the address first, then the stored choice, then the time zone, then the browser', () => {
@@ -248,7 +285,7 @@ test('badge.html matches the settings', () => {
     assert.ok(html.includes('data-field="' + name + '"'), 'no focus target for ' + name);
   }
   assert.ok(html.includes('mailto:' + rules.CONFIG.orderEmail));
-  assert.ok(html.includes(NOINDEX), 'the draft must stay out of search');
+  assert.ok(!html.includes(NOINDEX), 'the page is live: search may list it');
   const one = rules.formatUsd(rules.CONFIG.price);
   assert.ok(html.includes('data-qty-total>' + rules.t('es', 'qty.total', { total: one }) + '<'), 'first total differs from the settings');
   assert.ok(html.includes('data-qty-each>' + rules.t('es', 'qty.each', { unit: one }) + '<'), 'first price differs from the settings');

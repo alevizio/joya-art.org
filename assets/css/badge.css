@@ -691,6 +691,9 @@
 .bdg-summary__label { color: var(--bdg-muted); }
 .bdg-summary__total { font-family: var(--font-heading); }
 .bdg-summary__ars { margin: var(--bdg-space-2) 0 0; color: var(--bdg-muted); text-align: right; }
+/* where the pesos come from: the live dollar and its source, under the amount */
+.bdg-summary__rate { margin: var(--bdg-space-1) 0 0; color: var(--bdg-muted); text-align: right; }
+.bdg-summary__rate a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
 
 .bdg-fields { display: grid; gap: var(--bdg-space-3); margin-top: var(--bdg-space-4); }
 @media (min-width: 768px) {

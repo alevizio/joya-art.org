@@ -18,7 +18,13 @@
   var CONFIG = {
     pricesConfirmed: true,           // false marks every price as "provisional"
     price: 25,                       // USD for each badge, however many are in the order
-    arsPerUsd: null,                 // pesos per dollar, e.g. 1450. null shows "to be confirmed"
+    arsPerUsd: 1700,                 // pesos per dollar when the live rate cannot be read: ARS 42.500 a badge. null shows "to be confirmed"
+    /* The peso price follows the dólar MEP (DolarApi.com calls it "bolsa"; its sell price), read when the page
+       opens. A badge is rounded up to the next arsRoundTo pesos, so the price moves only when the dollar moves
+       enough. A rate far from arsPerUsd is taken as a broken answer and arsPerUsd is used instead. */
+    arsRateUrl: 'https://dolarapi.com/v1/dolares/bolsa',
+    arsRateSource: 'https://dolarapi.com',
+    arsRoundTo: 500,
     orderEmail: 'joyacamp85@gmail.com',
     /* The Google Sheet "Joya Badge pedidos" in joyacamp85@gmail.com keeps every order, to email everyone
        when the badges are ready: this is the web app address its script gives. Empty saves nothing; the
@@ -30,13 +36,21 @@
        says "Mostrar mi nombre en la lista: sí", else ''; badges: how many;
        via: mercadopago, crypto, venmo or wise; date: 'YYYY-MM-DD'. For example:
        { name: 'Ana', badges: 2, via: 'mercadopago', date: '2026-11-21' } */
-    supporters: [],
+    supporters: [
+      /* the five prototype badges, bought before the page, as one anonymous line */
+      { name: '', badges: 5, via: '', date: '' }
+    ],
     /* A method with nothing filled in shows as "coming soon" and cannot be picked. */
     methods: {
-      mercadopago: { alias: '', link: '' },               // alias and/or an https payment link
-      crypto: { coin: 'USDC', network: '', address: '' }, // network as the wallet names it, e.g. 'Base', and the address
-      venmo: { handle: '' },                              // without the @
-      wise: { link: '' }                                  // an https Wise payment link
+      /* alias and/or an https payment link; the CVU and the account holder's name show under the alias when set */
+      mercadopago: { alias: 'joya.camp', cvu: '0000003100010939921563', holder: 'Juan Beverati', link: 'https://mpago.la/2wXMx3M' },
+      /* one line per wallet: the coin, the network as the wallet names it, and the address */
+      crypto: [
+        { coin: 'BTC', network: 'Bitcoin', address: '3MPaBYKzC3xD9iBUCGE787H2kr6Cky8tqF' },
+        { coin: 'USDC', network: 'Ethereum', address: '0x98aA5e098418332A2a071Fe302bf7AE2B6f2e644' }
+      ],
+      venmo: { handle: 'alevizio' },                      // without the @
+      wise: { link: 'https://wise.com/pay/me/alejandrov1131' } // an https Wise payment link
     }
   };
   var METHOD_IDS = ['mercadopago', 'crypto', 'venmo', 'wise'];
@@ -127,7 +141,9 @@
       'sum.badge': 'Un badge',
       'sum.badges': '{n} badges, {unit} cada uno',
       'sum.total': 'Total',
-      'sum.ars': 'Aprox. {ars}',
+      'sum.ars': 'En pesos: {ars}',
+      'sum.rate': 'Al dólar MEP de hoy, {rate}, redondeado hacia arriba de a 500\u00a0pesos. Fuente:',
+      'sum.rateFixed': 'Con el dólar a {rate}.',
       'sum.arsPending': 'Monto en pesos: a confirmar',
       'sum.ref': 'Código',
       'f.name': 'Nombre',
@@ -145,9 +161,12 @@
       'pay.wise.text': 'Desde otros países',
       'pay.soon': 'Próximamente',
       'panel.mp.alias': 'Transferí {amount} a este alias de Mercado Pago:',
+      'panel.mp.cvu': 'O a este CVU:',
+      'panel.mp.holder': 'A nombre de {holder}.',
       'panel.mp.link': 'Pagar con Mercado Pago',
       'panel.mp.noRate': 'Te confirmamos el monto en pesos por mail antes de que pagues.',
-      'panel.crypto.text': 'Mandá el equivalente a {amount} en {coin} por la red {network} a esta dirección:',
+      'panel.crypto.text': 'Mandá el equivalente a {amount} a una de estas direcciones:',
+      'panel.crypto.wallet': '{coin}, por la red {network}:',
       'panel.crypto.warn': 'Revisá la red antes de mandar. Un envío por otra red se pierde.',
       'panel.venmo.text': 'Pagá {amount} por Venmo a @{handle}.',
       'panel.venmo.link': 'Abrir Venmo',
@@ -156,7 +175,7 @@
       'panel.ref': 'Poné este código en la nota del pago: {ref}',
       'copy': 'Copiar',
       'copied': 'Copiado',
-      's2.send': 'Mandar mi pedido por mail',
+      's2.send': 'Mandar mi pedido por\u00a0mail',
       's2.sendNote': 'Después de pagar, mandanos este mail. Así sabemos qué badge es tuyo.',
       'sent.title': '¿No se abrió tu mail?',
       'sent.text': 'Copiá este texto y mandalo a {email}.',
@@ -170,6 +189,7 @@
       'mail.email': 'Email: {email}',
       'mail.method': 'Medio de pago: {method}',
       'mail.total': 'Total: {total}',
+      'mail.ars': 'En pesos: {ars}',
       'mail.ref': 'Código: {ref}',
       'mail.public': 'Mostrar mi nombre en la lista: {answer}',
       'mail.yes': 'sí',
@@ -214,6 +234,7 @@
       'privacy.3': 'El pago lo procesa el medio que elijas, con sus propias reglas. Un pago en cripto queda a la vista de todos en la red.',
       'privacy.4': 'Tu nombre aparece en «Quienes lo hacen posible» solo si lo elegís. Si no, figurás como Anónimo.',
       'privacy.5': 'La página está en GitHub Pages, que registra las visitas por seguridad.',
+      'privacy.7': 'Para mostrar el precio en pesos, la página lee la cotización del dólar en DolarApi.com. Ese sitio ve tu dirección IP, como cualquier sitio que visitás.',
       'privacy.6': '¿Querés que borremos tus datos? Escribinos y los borramos.'
     },
     en: {
@@ -297,7 +318,9 @@
       'sum.badge': 'One badge',
       'sum.badges': '{n} badges, {unit} each',
       'sum.total': 'Total',
-      'sum.ars': 'About {ars}',
+      'sum.ars': 'In pesos: {ars}',
+      'sum.rate': 'At today\'s MEP dollar rate, {rate}, rounded up to the next 500\u00a0pesos. Source:',
+      'sum.rateFixed': 'At a dollar rate of {rate}.',
       'sum.arsPending': 'Amount in pesos: to be confirmed',
       'sum.ref': 'Code',
       'f.name': 'Name',
@@ -315,9 +338,12 @@
       'pay.wise.text': 'From other countries',
       'pay.soon': 'Coming soon',
       'panel.mp.alias': 'Send {amount} to this Mercado Pago alias:',
+      'panel.mp.cvu': 'Or to this CVU:',
+      'panel.mp.holder': 'The account is in the name of {holder}.',
       'panel.mp.link': 'Pay with Mercado Pago',
       'panel.mp.noRate': 'We will confirm the amount in pesos by email before you pay.',
-      'panel.crypto.text': 'Send the equivalent of {amount} in {coin} over the {network} network to this address:',
+      'panel.crypto.text': 'Send the equivalent of {amount} to one of these addresses:',
+      'panel.crypto.wallet': '{coin}, over the {network} network:',
       'panel.crypto.warn': 'Check the network before sending. A transfer over another network is lost.',
       'panel.venmo.text': 'Pay {amount} on Venmo to @{handle}.',
       'panel.venmo.link': 'Open Venmo',
@@ -326,7 +352,7 @@
       'panel.ref': 'Put this code in the payment note: {ref}',
       'copy': 'Copy',
       'copied': 'Copied',
-      's2.send': 'Send my order by email',
+      's2.send': 'Send my order by\u00a0email',
       's2.sendNote': 'After paying, send us this email. That is how we know which badge is yours.',
       'sent.title': 'Did your email app not open?',
       'sent.text': 'Copy this text and send it to {email}.',
@@ -340,6 +366,7 @@
       'mail.email': 'Email: {email}',
       'mail.method': 'Payment method: {method}',
       'mail.total': 'Total: {total}',
+      'mail.ars': 'In pesos: {ars}',
       'mail.ref': 'Code: {ref}',
       'mail.public': 'Show my name on the list: {answer}',
       'mail.yes': 'yes',
@@ -384,6 +411,7 @@
       'privacy.3': 'Your payment is handled by the service you pick, under its own rules. A crypto payment is visible to anyone on the network.',
       'privacy.4': 'Your name shows up under “The people making it happen” only if you choose so. If not, you show up as Anonymous.',
       'privacy.5': 'The page is hosted on GitHub Pages, which logs visits for security.',
+      'privacy.7': 'To show the price in pesos, the page reads the dollar rate from DolarApi.com. That site sees your IP address, as any site you visit does.',
       'privacy.6': 'Want us to delete your data? Write to us and we will.'
     }
   };
@@ -438,7 +466,9 @@
     var m = config.methods[id];
     if (!m) return false;
     if (id === 'mercadopago') return Boolean(m.alias || safeUrl(m.link));
-    if (id === 'crypto') return Boolean(m.coin && m.network && m.address);
+    if (id === 'crypto') {
+      return Array.isArray(m) && m.length > 0 && m.every(function (w) { return w && w.coin && w.network && w.address; });
+    }
     if (id === 'venmo') return Boolean(m.handle);
     return Boolean(safeUrl(m.link));
   }
@@ -505,6 +535,23 @@
     return 'ARS ' + Math.round(usd * config.arsPerUsd).toLocaleString('es-AR');
   }
 
+  /* The live dólar MEP from the rate source, or 0 when it is missing or far from arsPerUsd. */
+  function liveRate(config, sell) {
+    var rate = Number(sell);
+    return config.arsPerUsd && rate > config.arsPerUsd / 2 && rate < config.arsPerUsd * 3 ? rate : 0;
+  }
+
+  /* The settings with the pesos per dollar the page charges: the live rate with a badge rounded up to the
+     next arsRoundTo pesos, or arsPerUsd when there is no live rate. */
+  function priced(config, mep) {
+    if (!mep) return config;
+    var step = config.arsRoundTo || 1;
+    var out = {};
+    for (var key in config) out[key] = config[key];
+    out.arsPerUsd = Math.ceil(config.price * mep / step) * step / config.price;
+    return out;
+  }
+
   /* What is wrong on a step: { field: key of the sentence to show }. Empty means go on. */
   function validateStep(step, order, config) {
     var errors = {};
@@ -536,8 +583,9 @@
 
   /* A short code the payer puts in the payment note, so payment and email can be matched. */
   function newReference(cryptoObj) {
-    var uuid = cryptoObj.randomUUID();
-    return 'JOYA-' + uuid.replace(/-/g, '').slice(0, 8).toUpperCase();
+    var n = new Uint32Array(1);
+    cryptoObj.getRandomValues(n);
+    return 'JOYA-' + (100 + n[0] % 900);   // three digits, 100 to 999: easy to type; two buyers can share one
   }
 
   /* The row the buyers' Sheet keeps for an order; the Sheet's script checks it again before it saves it. */
@@ -563,6 +611,8 @@
   function orderText(order, config, lang, ref) {
     var lines = orderItems(order, config, lang);
     lines.push(t(lang, 'mail.total', { total: formatUsd(orderTotal(order, config)) }));
+    var ars = order.method === 'mercadopago' ? formatArs(orderTotal(order, config), config) : '';
+    if (ars) lines.push(t(lang, 'mail.ars', { ars: ars }));
     lines.push(t(lang, 'mail.method', { method: t(lang, 'pay.' + order.method) }));
     lines.push(t(lang, 'mail.ref', { ref: ref }));
     lines.push(t(lang, 'mail.name', { name: String(order.name).trim() }));
@@ -581,7 +631,7 @@
     CONFIG: CONFIG, WORDS: WORDS, METHOD_IDS: METHOD_IDS,
     t: t, markedParts: markedParts, pickLang: pickLang, safeUrl: safeUrl, methodReady: methodReady, isDraft: isDraft,
     progress: progress, supporterRows: supporterRows, maxBadges: maxBadges, parseQty: parseQty,
-    orderTotal: orderTotal, formatUsd: formatUsd, formatArs: formatArs,
+    orderTotal: orderTotal, formatUsd: formatUsd, formatArs: formatArs, liveRate: liveRate, priced: priced,
     validateStep: validateStep, orderItems: orderItems, venmoUrl: venmoUrl,
     newReference: newReference, orderRecord: orderRecord, sheetUrl: sheetUrl, orderText: orderText, mailtoUrl: mailtoUrl
   };
@@ -596,7 +646,8 @@
     lang: 'es',
     errors: {},
     ref: newReference(window.crypto),
-    order: { qty: '1', name: '', email: '', method: '', public: false }
+    order: { qty: '1', name: '', email: '', method: '', public: false },
+    mep: 0   // the live dólar MEP once read
   };
   var sentBox = document.querySelector('[data-sent]');
   var panel = document.querySelector('[data-panel]');
@@ -653,8 +704,9 @@
     return row;
   }
 
-  function linkButton(url, label) {
-    var a = el('a', 'bdg-btn', label);
+  /* A link that opens in a new tab: 'bdg-btn' for the payment buttons, '' for a link in the text. */
+  function link(className, url, label) {
+    var a = el('a', className, label);
     a.href = url;
     a.target = '_blank';
     a.rel = 'noopener';
@@ -672,13 +724,36 @@
     list.appendChild(el('dd', 'bdg-summary__total', priceLabel(total)));
     list.appendChild(el('dt', 'bdg-summary__label', say('sum.ref')));
     list.appendChild(el('dd', 'bdg-summary__value', state.ref));
-    var ars = formatArs(total, CONFIG);
+    var ars = formatArs(total, priced(CONFIG, state.mep));
     summary.replaceChildren(
       el('h4', 'bdg-summary__title', say('sum.title')),
       items,
       list,
       el('p', 'bdg-summary__ars t-small', ars ? say('sum.ars', { ars: ars }) : say('sum.arsPending'))
     );
+    if (ars) summary.appendChild(rateNote());
+  }
+
+  /* Which dollar the pesos come from: the live rate and its source, or the fixed one. */
+  function rateNote() {
+    var note = el('p', 'bdg-summary__rate t-small');
+    if (!state.mep) {
+      note.textContent = say('sum.rateFixed', { rate: formatArs(1, CONFIG) });
+      return note;
+    }
+    note.appendChild(document.createTextNode(say('sum.rate', { rate: formatArs(1, { arsPerUsd: state.mep }) }) + ' '));
+    note.appendChild(link('', CONFIG.arsRateSource, 'DolarApi.com'));
+    note.appendChild(document.createTextNode('.'));
+    return note;
+  }
+
+  /* Reads the live dólar MEP once; the pesos stay on arsPerUsd if it does not answer. */
+  function readRate() {
+    if (!safeUrl(CONFIG.arsRateUrl) || !window.fetch) return;
+    window.fetch(CONFIG.arsRateUrl).then(function (res) { return res.ok ? res.json() : null; }).then(function (data) {
+      state.mep = liveRate(CONFIG, data && data.venta);
+      if (state.mep && state.step === LAST_STEP) { renderSummary(); renderPanel(); }
+    }).catch(function () { /* no live rate: arsPerUsd stays */ });
   }
 
   function renderPanel() {
@@ -689,26 +764,34 @@
     var total = orderTotal(state.order, CONFIG);
     var usd = formatUsd(total);
     if (id === 'mercadopago') {
-      var ars = formatArs(total, CONFIG);
+      var ars = formatArs(total, priced(CONFIG, state.mep));
       if (!ars) panel.appendChild(el('p', '', say('panel.mp.noRate')));
       if (m.alias) {
         panel.appendChild(el('p', '', say('panel.mp.alias', { amount: ars || usd })));
         panel.appendChild(copyRow(m.alias));
       }
-      if (safeUrl(m.link)) panel.appendChild(linkButton(m.link, say('panel.mp.link')));
+      if (m.cvu) {
+        panel.appendChild(el('p', '', say('panel.mp.cvu')));
+        panel.appendChild(copyRow(m.cvu));
+      }
+      if (m.holder) panel.appendChild(el('p', '', say('panel.mp.holder', { holder: m.holder })));
+      if (safeUrl(m.link)) panel.appendChild(link('bdg-btn', m.link, say('panel.mp.link')));
     }
     if (id === 'crypto') {
-      panel.appendChild(el('p', '', say('panel.crypto.text', { amount: usd, coin: m.coin, network: m.network })));
-      panel.appendChild(copyRow(m.address));
+      panel.appendChild(el('p', '', say('panel.crypto.text', { amount: usd })));
+      m.forEach(function (wallet) {
+        panel.appendChild(el('p', '', say('panel.crypto.wallet', { coin: wallet.coin, network: wallet.network })));
+        panel.appendChild(copyRow(wallet.address));
+      });
       panel.appendChild(el('p', 'bdg-panel__warn', say('panel.crypto.warn')));
     }
     if (id === 'venmo') {
       panel.appendChild(el('p', '', say('panel.venmo.text', { amount: usd, handle: String(m.handle).replace(/^@/, '') })));
-      panel.appendChild(linkButton(venmoUrl(m.handle, total, state.ref), say('panel.venmo.link')));
+      panel.appendChild(link('bdg-btn', venmoUrl(m.handle, total, state.ref), say('panel.venmo.link')));
     }
     if (id === 'wise') {
       panel.appendChild(el('p', '', say('panel.wise.text', { amount: usd })));
-      panel.appendChild(linkButton(m.link, say('panel.wise.link')));
+      panel.appendChild(link('bdg-btn', m.link, say('panel.wise.link')));
     }
     panel.appendChild(el('p', 'bdg-panel__ref', say('panel.ref', { ref: state.ref })));
   }
@@ -861,7 +944,7 @@
 
   function showSent() {
     sentBox.querySelector('[data-sent-text]').textContent = say('sent.text', { email: CONFIG.orderEmail });
-    var text = orderText(state.order, CONFIG, state.lang, state.ref);
+    var text = orderText(state.order, priced(CONFIG, state.mep), state.lang, state.ref);
     sentBox.querySelector('[data-sent-body]').textContent = text;
     sentBox.querySelector('[data-copy]').setAttribute('data-copy', text);
     sentBox.hidden = false;
@@ -923,5 +1006,6 @@
   });
 
   applyLang(pickLang(new URLSearchParams(window.location.search).get('lang'), storedLang(), timeZone(), navigator.languages));
+  readRate();
   watchLoops();
 })();
