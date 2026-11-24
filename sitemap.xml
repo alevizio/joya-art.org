@@ -64,7 +64,12 @@
     <loc>https://joya-art.org/events</loc>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/events/joya-fundraiser-2026-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/events/uruguay-2025-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/events/fuego-austral-2025-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/events/amanita-festival-2024-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/events/burning-man-2024-1440w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/events/joya-crystallized-2500w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/events/project-one-f5w4d-chex2-2048w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/events/burning-man-2023-2500w.webp</image:loc></image:image>
@@ -75,6 +80,98 @@
     <image:image><image:loc>https://joya-art.org/assets/img/events/global-eclipse-2020-joya-mate-2500w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/events/fuego-austral-2020-joya-metal-2500w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/events/fuego-austral-2019-wood-joya-1024w.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://joya-art.org/events/joya-fundraiser-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/joya-fundraiser-2026/01-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/joya-fundraiser-2026/02-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/joya-fundraiser-2026/03-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/joya-fundraiser-2026/04-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/joya-fundraiser-2026/05-1440w.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://joya-art.org/events/uruguay-2025</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/01-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/02-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/03-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/04-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/05-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/06-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/07-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/08-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/09-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/10-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/11-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/12-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/13-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/14-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/15-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/16-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/17-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/18-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/19-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/20-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/21-1200w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/22-1200w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/23-900w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/24-900w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/25-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/26-1200w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/27-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/28-1200w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/uruguay-2025/29-1440w.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://joya-art.org/events/fuego-austral-2025</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/01-960w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/02-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/03-720w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/04-612w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/05-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/06-612w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/07-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/08-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/09-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/10-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/11-720w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/12-720w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/fuego-austral-2025/13-1440w.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://joya-art.org/events/amanita-festival-2024</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/01-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/02-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/03-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/04-1365w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/05-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/amanita-festival-2024/06-1440w.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://joya-art.org/events/burning-man-2024</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2026-11-24</lastmod>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/01-1065w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/02-1070w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/03-934w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/04-1070w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/05-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/06-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/07-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/08-1440w.webp</image:loc></image:image>
+    <image:image><image:loc>https://joya-art.org/assets/img/burning-man-2024/09-1440w.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://joya-art.org/events/mendoza-2021</loc>
@@ -305,7 +402,7 @@
     <loc>https://joya-art.org/events/joya-crystallized</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-24</lastmod>
     <image:image><image:loc>https://joya-art.org/assets/img/joya-crystallized/01-2500w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/joya-crystallized/02-2500w.webp</image:loc></image:image>
     <image:image><image:loc>https://joya-art.org/assets/img/joya-crystallized/03-1286w.webp</image:loc></image:image>
