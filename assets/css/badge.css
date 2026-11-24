@@ -1,0 +1,830 @@
+/* ==========================================================================
+   joya-art.org: the badge fundraiser page (/badge)
+
+   Loaded after site.css, which gives the page its header, sections, themes and type.
+   Everything here is prefixed bdg- and only styles what is inside body.page-badge.
+
+   1. Tokens, and the black header of this page
+   2. Buttons, inputs
+   3. Hero, the 3D board and facts
+   4. Photos of the board, and the video
+   5. The remote on a phone
+   6. The order: steps, choices, summary, payment panel
+   7. Notes
+   ========================================================================== */
+
+/* ---------- 1. tokens ---------- */
+.page-badge {
+  --bdg-space-1: .5rem;
+  --bdg-space-2: 1rem;
+  --bdg-space-3: 1.5rem;
+  --bdg-space-4: 2.5rem;
+  --bdg-space-5: 4rem;
+  --bdg-tap: 48px;                                  /* smallest height of anything you press */
+  --bdg-tap-small: 44px;
+  --bdg-line-w: 1px;
+  --bdg-mark-w: 3px;                                /* the frame of a picked option */
+  --bdg-form-w: 46rem;                              /* widest the order form gets */
+  --bdg-num-size: clamp(1.8rem, 4vw, 3rem);         /* the big words in the facts row */
+  --bdg-warn: hsl(45 100% 85%);                     /* draft banner, crypto warning: black text on it */
+  --bdg-error: hsl(0 70% 38%);
+  /* The colours the badge's LEDs show in the renders. Used for glows and the progress bar only, never for text. */
+  --bdg-led-pink: hsl(330 100% 62%);
+  --bdg-led-violet: hsl(268 90% 64%);
+  --bdg-led-amber: hsl(42 100% 62%);
+  --bdg-led-warm: hsl(30 100% 88%);
+  --bdg-led-strip: linear-gradient(90deg, var(--bdg-led-pink), var(--bdg-led-violet) 50%, var(--bdg-led-amber));
+  --bdg-bar-h: 1rem;                                /* the progress bar */
+  --bdg-hl-yellow: rgb(245 229 0);                  /* the hand drawn marks: same colours as on the home page */
+  --bdg-hl-pink: rgb(255 0 134);
+  --bdg-dot: 1.375rem;                           /* the round marker of a row you can pick */
+}
+/* These two follow the theme of the section they are in. */
+.page-badge .section {
+  --bdg-line: color-mix(in srgb, var(--text) 25%, transparent);
+  --bdg-muted: color-mix(in srgb, var(--text) 65%, var(--bg));
+  --bdg-picked: color-mix(in srgb, var(--accent) 35%, var(--bg));
+}
+.page-badge [hidden] { display: none !important; }
+/* This page only: the header and the open menu are black, so the night hero starts at the top of
+   the window. The logo is a dark picture, so it is inverted. */
+.page-badge .header,
+.page-badge .menu { color: var(--white); }
+.page-badge .header__bar,
+.page-badge .menu { background: var(--black); }
+.page-badge .header__logo img { filter: invert(1); }
+/* The language switch, small, at the top right of the header: after the links on a wide screen,
+   before the burger on a phone. Each button is drawn small but still takes a 44 px tall tap. */
+.bdg-lang {
+  --bdg-lang-h: 1.75rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-left: var(--bdg-space-3);
+  border: var(--bdg-line-w) solid currentColor;
+  font-size: .75rem;
+  line-height: 1;
+}
+.bdg-lang__btn {
+  position: relative;
+  min-width: 2.25rem;
+  height: var(--bdg-lang-h);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+.bdg-lang__btn::before { content: ""; position: absolute; inset: calc((var(--bdg-tap-small) - var(--bdg-lang-h)) / -2) 0; }
+.bdg-lang__btn[aria-pressed="true"] { background: var(--white); color: var(--black); }
+@media (max-width: 799px), (pointer: coarse) and (max-width: 1024px) {
+  .page-badge .header__logo { flex: 1 1 auto; }
+  .bdg-lang { margin: 0 var(--bdg-space-2) 0 0; }
+}
+/* At the top of the page the bar is see-through, so the lanyard (the 3D canvas reaches up to here) runs on
+   behind the menu, under a soft dark fade that keeps the links readable. Once scrolled it is solid again. */
+.page-badge .header:not(.is-shrunk) .header__bar {
+  background: linear-gradient(rgb(0 0 0 / .85), rgb(0 0 0 / .78) 20%, rgb(0 0 0 / .62) 45%, rgb(0 0 0 / .38) 70%, rgb(0 0 0 / .14) 88%, rgb(0 0 0 / 0));
+}
+
+
+/* No line on this page ends on one word alone: headings are balanced, running text breaks "pretty". */
+.page-badge main :is(h1, h2, h3, h4, caption, .bdg-choice__title) { text-wrap: balance; }
+.page-badge main :is(p, li, figcaption, figcaption > span, .bdg-choice__text, .bdg-3d__layer > span) { text-wrap: pretty; }
+
+
+/* ---------- 2. buttons, inputs ---------- */
+.bdg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--bdg-tap);
+  padding: 0 1.5em;
+  border: var(--bdg-line-w) solid var(--text);
+  border-radius: 0;
+  background: var(--text);
+  color: var(--bg);
+  font: inherit;
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+}
+.bdg-btn--ghost { background: transparent; color: var(--text); }
+.bdg-btn--small { min-height: var(--bdg-tap-small); padding: 0 1em; }
+@media (hover: hover) {
+  .bdg-btn:hover { opacity: .8; }
+}
+
+.bdg-label {
+  display: block;
+  margin: 0 0 var(--bdg-space-1);
+  padding: 0;
+  font-family: var(--font-heading);
+}
+.bdg-input {
+  display: block;
+  box-sizing: border-box; /* the site sets no global box model, so 100% plus padding ran past the form */
+  width: 100%;
+  min-height: var(--bdg-tap);
+  padding: 0 .75em;
+  border: var(--bdg-line-w) solid var(--text);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.bdg-input[aria-invalid="true"] {
+  border-color: var(--bdg-error);
+  box-shadow: inset 0 0 0 var(--bdg-line-w) var(--bdg-error);
+}
+.bdg-error {
+  margin: var(--bdg-space-1) 0 0;
+  color: var(--bdg-error);
+  font-weight: 700;
+}
+.bdg-note { color: var(--bdg-muted); }
+.bdg-note a,
+.bdg-notes a {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+
+/* ---------- 3. hero, the 3D board and facts ---------- */
+.bdg-draft {
+  position: relative;   /* above the 3D canvas, which reaches up behind it */
+  z-index: 1;
+  margin: 0 0 var(--bdg-space-3);
+  padding: var(--bdg-space-1) var(--bdg-space-2);
+  background: var(--bdg-warn);
+  color: var(--black);
+  font-weight: 700;
+}
+.bdg-hero { display: grid; gap: var(--bdg-space-4); }
+.bdg-kicker { margin: 0; font-family: var(--font-heading); }
+.bdg-hero__title { margin: var(--bdg-space-2) 0; }
+/* On an upright phone the title follows the window height (site.css). "Joya puesta" never breaks, so that
+   "puesta" is never alone, and on a narrow phone it would run past the screen: there the width caps it. */
+@media (max-width: 767px) and (orientation: portrait) {
+  .bdg-hero__title { font-size: min(calc((var(--v) - 1) * .012 * min(100vh, 900px) + 1rem), 13vw); }
+}
+/* The marks site.js draws behind two words of the title. The marked word turns black once its
+   yellow marker is drawn (site.js sets data-drawn), so it is never black on the black page.
+   The marker's square ends reach half an em past the word: the margin keeps the white letters
+   next to it off the yellow. */
+.bdg-hero__title .hl[data-shape="marker"] { --hl-color: var(--bdg-hl-yellow); --hl-width: 1em; margin-inline: .3em; }
+.bdg-hero__title .hl[data-shape="marker"][data-drawn] { color: var(--black); transition: color .2s .25s; }
+.bdg-hero__title .hl[data-shape="underlineCurve"] { --hl-color: var(--bdg-hl-pink); --hl-width: .1em; }
+@media (prefers-reduced-motion: reduce) {
+  .bdg-hero__title .hl[data-shape="marker"][data-drawn] { transition: none; }
+}
+.bdg-hero__text .bdg-btn { margin-top: var(--bdg-space-2); }
+/* How many badges are spoken for, drawn as a strip of LEDs: one square per badge of the run.
+   Unclaimed squares are dim, claimed ones light up in the badge's colours. */
+.bdg-progress { margin: var(--bdg-space-3) 0 var(--bdg-space-1); }
+.bdg-progress__text { margin: 0 0 var(--bdg-space-1); font-family: var(--font-heading); }
+.bdg-progress__bar {
+  --bdg-unlit: color-mix(in srgb, var(--text) 16%, transparent);
+  display: block;
+  width: 100%;
+  height: var(--bdg-bar-h);
+  border: 0;
+  border-radius: 0;
+  background: var(--bdg-unlit);
+  color: var(--bdg-led-pink);
+  -webkit-appearance: none;
+  appearance: none;
+  /* gaps between the 100 squares */
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
+  mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
+}
+.bdg-progress__bar::-webkit-progress-bar { background: var(--bdg-unlit); }
+.bdg-progress__bar::-webkit-progress-value { background: var(--bdg-led-strip); }
+.bdg-progress__bar::-moz-progress-bar { background: var(--bdg-led-strip); }
+/* The 3D badge (js/badge/viewer.js). A still of it shows first and stays when there is no WebGL;
+   the live canvas fades in over it once the first frame is drawn. */
+.bdg-hero__figure { margin: 0; }
+.bdg-hero__figure figcaption { margin-top: var(--bdg-space-2); color: var(--bdg-muted); text-align: center; }
+.bdg-3d__stage { position: relative; aspect-ratio: 1; container-type: inline-size; }
+/* A soft spotlight behind the badge: wider than the stage and blurred out into the black page (a bell
+   shaped fall off). The still poster has it baked in, so it lines up with this edge to edge. */
+.bdg-3d__stage::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(closest-side, rgb(25 28 36), rgb(25 28 36 / .94) 12%, rgb(25 28 36 / .77) 25%, rgb(25 28 36 / .54) 38%, rgb(25 28 36 / .35) 50%, rgb(25 28 36 / .19) 62%, rgb(25 28 36 / .09) 75%, rgb(25 28 36 / .03) 88%, rgb(25 28 36 / 0));
+  pointer-events: none;
+}
+/* the spotlight is wider than a phone: the hero clips it at the screen's sides, never at the top */
+.page-badge .section--first { overflow-x: clip; }
+.bdg-3d__poster,
+.bdg-3d__canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.bdg-3d__poster { transition: opacity .4s; }
+.bdg-3d.is-live .bdg-3d__poster { opacity: 0; pointer-events: none; }
+/* The live canvas reaches up from the stage to the top of the page (--bdg-3d-reach, set by stage.js), so the
+   lanyard runs on up behind the menu and the draft note. The stage, not the canvas, takes the drag. */
+.bdg-3d__canvas { top: calc(-1 * var(--bdg-3d-reach, 0px)); height: calc(100% + var(--bdg-3d-reach, 0px)); pointer-events: none; }
+.bdg-3d.is-live .bdg-3d__stage { cursor: grab; touch-action: pan-y; }   /* a sideways drag turns the board, an upward one still scrolls */
+.bdg-3d.is-live .bdg-3d__stage:active { cursor: grabbing; }
+/* Each part's name, placed by the script beside its right-hand corner while the badge is apart. A name
+   that would run past the stage's right edge wraps (the script sets its max-width). */
+.bdg-3d__layers { position: absolute; inset: 0; z-index: 1; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.bdg-3d__layer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  line-height: 1.2;
+  opacity: 0;
+  transform: translate(.4rem, -50%);
+}
+@container (max-width: 30rem) {
+  .bdg-3d__layer { gap: .3rem; font-size: .7rem; line-height: 1.1; }
+  .bdg-3d__layer .bdg-3d__n { width: .9rem; height: .9rem; font-size: .52rem; }
+}
+@container (max-width: 21rem) {
+  .bdg-3d__layer { font-size: .62rem; }
+}
+.bdg-3d__hint { display: block; }
+.bdg-3d__n {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-heading);
+  font-size: .7rem;
+}
+.bdg-3d__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--bdg-space-1) var(--bdg-space-2);
+  margin-top: var(--bdg-space-1);
+}
+/* "Dar vuelta" and "Ver las capas": an icon and the words, no outline and no side padding; the row's gap
+   keeps them apart */
+.bdg-3d__btn { gap: .4em; padding: 0; border: 0; }
+.bdg-3d__icon { flex: none; width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 359px) {   /* a 320 px phone: a little tighter, so the two still share one row */
+  .bdg-3d__controls { column-gap: var(--bdg-space-1); }
+  .bdg-3d__btn { gap: .3em; }
+  .bdg-3d__icon { width: 1.1em; height: 1.1em; }
+}
+.bdg-3d__close,
+[aria-pressed="true"] > .bdg-3d__open { display: none; }
+[aria-pressed="true"] > .bdg-3d__close { display: inline; }
+@media (prefers-reduced-motion: reduce) {
+  .bdg-3d__poster { transition: none; }
+}
+/* Phones: the board comes first, above the title. */
+@media (max-width: 767px) {
+  .bdg-hero { gap: var(--bdg-space-3); }
+  .bdg-hero__figure { order: -1; width: min(100%, 24rem); margin: 0 auto; }
+}
+@media (min-width: 768px) {
+  .bdg-hero { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--bdg-space-5); }
+}
+/* From 1024 px the text is centred on the 3D badge, not on the badge with its buttons and caption: the figure
+   lends its three rows to the hero (subgrid) and the text sits in the first. Where the text is the taller, the
+   badge stays down on its buttons. Narrower, the badge is smaller than the text and this would drop it low */
+@media (min-width: 1024px) {
+  .bdg-hero { grid-template-rows: auto auto auto; row-gap: 0; }
+  .bdg-hero__text { grid-row: 1; }
+  .bdg-hero__figure { grid-row: 1 / 4; align-self: stretch; display: grid; grid-template-rows: subgrid; }
+  .bdg-3d__stage { align-self: end; }
+}
+
+/* The hero and the facts read as one night band: a hairline between them, not a new section. */
+.page-badge .section--first + .theme-black > .section__wrap { padding-top: 0; }
+.bdg-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--bdg-space-4) var(--bdg-space-3);
+  margin: 0;
+  padding: var(--bdg-space-4) 0 0;
+  border-top: var(--bdg-line-w) solid var(--bdg-line);
+  list-style: none;
+}
+.bdg-fact { display: flex; flex-direction: column; gap: var(--bdg-space-1); line-height: 1.4; }
+.bdg-fact__num { font-family: var(--font-heading); font-size: var(--bdg-num-size); line-height: 1; }
+/* one lit LED over each fact, each in another of the badge's colours */
+.bdg-fact::before {
+  content: "";
+  width: .75rem;
+  height: .75rem;
+  margin-bottom: var(--bdg-space-1);
+  background: var(--led);
+  box-shadow: 0 0 .75rem .2rem color-mix(in srgb, var(--led) 60%, transparent);
+}
+.bdg-fact:nth-child(1) { --led: var(--bdg-led-pink); }
+.bdg-fact:nth-child(2) { --led: var(--bdg-led-amber); }
+.bdg-fact:nth-child(3) { --led: var(--bdg-led-violet); }
+.bdg-fact:nth-child(4) { --led: var(--bdg-led-warm); }
+@media (min-width: 768px) {
+  .bdg-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+
+/* ---------- 4. photos of the board and the shell ---------- */
+/* One gallery: the board photos, then the clips and photos of the 3D printer. It runs from one edge of
+   the window to the other with a 1 px black line between tiles, and its last row meets the black section
+   below with no white under it; each tile is cut to the same shape, with its line written over the
+   bottom of the picture. One column on a phone, two from 600 px, three from 1024 px; a wide tile spans
+   two columns, so every row is full: two columns = boards | on dark | panel stand | flash rig |
+   timelapse | close printer | ready slicer, three = boards on | dark panel stand | flash rig |
+   timelapse close | printer ready slicer. */
+.bdg-photos { --bdg-tile-gap: 1px; overflow-x: clip; }   /* clip: 100vw counts a desktop scrollbar */
+.bdg-photos > .section__wrap { padding-bottom: 0; }
+.bdg-gallery__title { --v: 2.2; margin-top: 0; }   /* the site's h3 size: smaller than the other section titles */
+.bdg-gallery > .t-large { max-width: var(--bdg-form-w); }
+.bdg-gallery__list {
+  display: grid;
+  gap: var(--bdg-tile-gap);
+  margin: var(--bdg-space-4) calc(50% - 50vw) 0;
+  padding: 0;
+  list-style: none;
+  background: var(--black);   /* the colour of the lines between tiles */
+}
+.bdg-gallery__item { position: relative; aspect-ratio: 4 / 5; background: var(--black); }
+.bdg-gallery__item--wide { aspect-ratio: 3 / 2; }
+.bdg-gallery__item figure,
+.bdg-gallery__item a { position: absolute; inset: 0; margin: 0; }
+.bdg-gallery__item a:focus-visible { outline: 3px solid var(--bdg-hl-pink); outline-offset: -3px; z-index: 1; }
+.bdg-gallery__item img,
+.bdg-gallery__item video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bdg-gallery__item figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: var(--bdg-space-4) var(--bdg-space-2) var(--bdg-space-2);
+  background: linear-gradient(transparent, rgb(0 0 0 / .72));
+  color: var(--white);
+  line-height: 1.4;
+  pointer-events: none;   /* a tap on the line still opens the photo */
+}
+@media (min-width: 600px) {
+  .bdg-gallery__list { grid-template-columns: 1fr 1fr; }
+  .bdg-gallery__item--wide { grid-column: span 2; }
+}
+/* A wide tile beside a 4:5 one takes that tile's height. */
+@media (min-width: 1024px) {
+  .bdg-gallery__list { grid-template-columns: repeat(3, 1fr); }
+  .bdg-gallery__item--wide,
+  .bdg-gallery__item--wide-lg { grid-column: span 2; aspect-ratio: auto; }
+}
+/* Where each picture is cut: its subject inside the tile. */
+.bdg-photo--boards img { object-position: 50% 58%; }
+.bdg-photo--on img { object-position: 38% 50%; }
+.bdg-photo--rig img { object-position: 50% 85%; }
+
+
+/* the board explained on video, below the photos */
+/* The video takes the section's full width (on a phone, the screen's); its intro keeps a readable line */
+.bdg-video__title { margin-top: 0; }
+.bdg-video > .t-large { max-width: 46rem; }
+.bdg-video__player { display: block; width: 100%; height: auto; margin-top: var(--bdg-space-3); background: var(--black); }
+@media (max-width: 767px) {
+  .bdg-video__player { width: calc(100% + 2 * var(--gutter)); max-width: none; margin-inline: calc(-1 * var(--gutter)); }
+}
+.bdg-video .bdg-note { margin-top: var(--bdg-space-1); }
+
+
+/* ---------- 5. the remote on a phone (js/badge/remote.js) ---------- */
+.bdg-remote__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--bdg-space-4); align-items: center; }   /* one column no wider than the screen */
+@media (min-width: 768px) {
+  .bdg-remote__grid { grid-template-columns: minmax(0, 1fr) auto; gap: var(--bdg-space-5); }
+}
+.bdg-remote__text { max-width: 34rem; text-wrap: pretty; } /* no last line of one word */
+.bdg-remote__title { margin-top: 0; text-wrap: balance; }
+/* the phone runs down to the section's lower edge, where it is cut off (only once the script has
+   shown it: without JavaScript the text keeps the section's padding) */
+.bdg-remote:has(.bdg-phone:not([hidden])) > .section__wrap { padding-bottom: 0; }
+/* a phone of today's shape: thin dark frame, round corners, the island at the top. Its lower part is
+   cut away: the frame has no bottom edge and the screen, still scrolling, ends at the cut */
+.bdg-phone {
+  box-sizing: border-box;
+  width: min(100%, 24rem);
+  aspect-ratio: 9 / 15.5; /* of a 9 : 19.5 phone, the top four fifths */
+  margin: 0 auto;
+  padding: calc(.55rem - 2px) calc(.55rem - 2px) 0;
+  border: 2px solid #2c2e36;
+  border-bottom: 0;
+  border-radius: 3rem 3rem 0 0;
+  background: #111216;
+  box-shadow: 0 0 0 1px #3a3c44, 0 2rem 5rem rgb(0 0 0 / .6);
+  clip-path: inset(-6rem -6rem 0 -6rem); /* the cut: the outer ring and shadow stop there too */
+}
+.bdg-phone__screen {
+  height: 100%;
+  border-radius: 2.5rem 2.5rem 0 0;
+  background: #0d0e12;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.bdg-phone__screen::-webkit-scrollbar { display: none; }
+
+/* The remote page itself, laid out at 390 px and zoomed by the script: the firmware's
+   remote/page.html styles, as in the remote video. Its own colours, not the site's. */
+.rp {
+  --rp-bg: #0d0e12;
+  --rp-panel2: #23252d;
+  --rp-fg: #e8e8ec;
+  --rp-muted: #9a9ca6;
+  --rp-line: #2b2d36;
+  --rp-accent: #8c8ef7;
+  --rp-stage: #07080b;
+  width: 390px;
+  background: var(--rp-bg);
+  color: var(--rp-fg);
+  font: 15px/1.45 system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+.rp__status { position: sticky; top: 0; z-index: 1; height: 50px; background: var(--rp-bg); }
+.rp__island { display: block; width: 110px; height: 32px; margin: 11px auto 0; border-radius: 16px; background: #000; }
+.rp__url { display: flex; justify-content: center; padding: 2px 0 6px; }
+.rp__url span { padding: 4px 16px; border-radius: 8px; background: var(--rp-panel2); font: 12px ui-monospace, Menlo, monospace; color: #c9cad2; }
+.rp__wrap { display: flex; flex-direction: column; gap: 14px; padding: 10px 16px 44px; }
+.rp__title { margin: 0; font-size: 18px; font-weight: 600; }
+.rp__sub { margin: 0; font: 12px ui-monospace, Menlo, monospace; color: var(--rp-muted); }
+.rp__stage { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 16px; background: var(--rp-stage); }
+.rp__stage canvas { display: block; width: 100%; height: auto; }
+.rp__now { display: flex; justify-content: space-between; gap: 10px; font: 12px ui-monospace, Menlo, monospace; color: var(--rp-muted); }
+.rp__now b { color: #fff; font-weight: 500; }
+.rp__lab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: -6px; font-size: 12px; color: var(--rp-muted); }
+.rp__lab b { color: var(--rp-fg); font-weight: 600; }
+.rp__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rp__eff {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px 7px;
+  border: 1px solid var(--rp-line);
+  border-radius: 12px;
+  background: var(--rp-panel2);
+  color: var(--rp-fg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.rp__eff canvas { display: block; width: 100%; height: auto; aspect-ratio: 75 / 59.3; border-radius: 8px; background: var(--rp-stage); }
+.rp__eff[aria-pressed="true"] { border-color: var(--rp-accent); box-shadow: 0 0 0 2px var(--rp-accent); font-weight: 600; }
+.rp__pals { display: flex; gap: 6px; padding-bottom: 6px; overflow-x: auto; scrollbar-width: none; }
+.rp__pal { flex: 0 0 auto; width: 48px; height: 30px; padding: 0; border: 1px solid var(--rp-line); border-radius: 7px; cursor: pointer; }
+.rp__pal[aria-pressed="true"] { border-color: var(--rp-accent); box-shadow: 0 0 0 2px var(--rp-accent); }
+.rp__range { width: 100%; margin: 0; accent-color: var(--rp-accent); }
+.rp__hint { margin: 0; font-size: 12px; color: var(--rp-muted); }
+.rp :focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+
+/* ---------- 6. the order ---------- */
+.bdg-order { scroll-margin-top: var(--header-h); }
+.bdg-order__inner { max-width: var(--bdg-form-w); margin: 0 auto; }
+.bdg-order__title { margin-top: 0; }
+
+.bdg-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bdg-space-1) var(--bdg-space-3);
+  margin: 0 0 var(--bdg-space-4);
+  padding: 0;
+  list-style: none;
+}
+.bdg-steps__item {
+  display: flex;
+  align-items: center;
+  gap: var(--bdg-space-1);
+  color: var(--bdg-muted);
+}
+.bdg-steps__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  border: var(--bdg-line-w) solid currentColor;
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+.bdg-steps__item[aria-current="step"] { color: var(--text); font-weight: 700; }
+.bdg-steps__item[aria-current="step"] .bdg-steps__n { background: var(--text); color: var(--bg); border-color: var(--text); }
+/* steps already done: full colour, so the row reads as progress */
+.bdg-steps__item:has(~ [aria-current="step"]) { color: var(--text); }
+/* a short rule joins each step to the one before it, where the row has room for it */
+@media (min-width: 480px) {
+  .bdg-steps__item + .bdg-steps__item::before {
+    content: "";
+    width: var(--bdg-space-3);
+    height: var(--bdg-line-w);
+    margin-right: var(--bdg-space-1);
+    background: currentColor;
+  }
+}
+
+.bdg-step__title { margin: 0 0 var(--bdg-space-3); outline: none; }
+
+/* Step 1: how many. A minus, the count and a plus, with the total beside them, then the table of what
+   each badge costs at each count, the count in force marked. */
+.bdg-qty__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bdg-space-2) var(--bdg-space-3);
+}
+.bdg-stepper { display: flex; }
+.bdg-stepper__btn {
+  display: grid;
+  place-items: center;
+  width: var(--bdg-tap);
+  height: var(--bdg-tap);
+  padding: 0;
+  border: var(--bdg-line-w) solid var(--text);
+  border-radius: 0;
+  background: var(--text);
+  color: var(--bg);
+  font: inherit;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.bdg-stepper__btn[aria-disabled="true"] { background: transparent; color: var(--bdg-muted); border-color: var(--bdg-line); cursor: default; }
+.bdg-stepper__btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; position: relative; }
+.bdg-stepper__input {
+  width: 4.5rem;
+  border-inline: 0;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  text-align: center;
+}
+@media (hover: hover) {
+  .bdg-stepper__btn:not([aria-disabled="true"]):hover { opacity: .8; }
+}
+.bdg-qty__price { display: flex; flex-direction: column; margin: 0; line-height: 1.35; }
+.bdg-qty__total { font-family: var(--font-heading); font-size: 1.5rem; }
+.bdg-qty__each { color: var(--bdg-muted); }
+/* the link down to what the price pays for (section 7) */
+.bdg-qty__why { margin: var(--bdg-space-2) 0 0; }
+.bdg-qty__why a { text-decoration: underline; text-underline-offset: .2em; }
+.bdg-qty + .bdg-note { margin: var(--bdg-space-2) 0 var(--bdg-space-3); }
+
+.bdg-rows { display: grid; gap: var(--bdg-space-1); }
+@media (min-width: 768px) {
+  .bdg-rows--two { grid-template-columns: 1fr 1fr; }
+}
+.bdg-rows[aria-invalid="true"] { outline: var(--bdg-line-w) solid var(--bdg-error); outline-offset: var(--bdg-space-1); }
+.bdg-rows:focus { outline-style: solid; }
+
+.bdg-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bdg-space-1);
+  padding: var(--bdg-space-2);
+  border: var(--bdg-line-w) solid var(--bdg-line);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+}
+@media (hover: hover) {
+  .bdg-choice:not(:has(:disabled)):hover { border-color: var(--text); }
+}
+.bdg-choice--row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bdg-space-2);
+  min-height: var(--bdg-tap);
+}
+.bdg-choice:has(:checked) {
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 var(--bdg-mark-w) var(--text);
+  background: var(--bdg-picked);
+}
+.bdg-choice:has(:focus-visible) { outline: 2px solid currentColor; outline-offset: 4px; }
+.bdg-choice:has(:disabled) { color: var(--bdg-muted); cursor: not-allowed; }
+
+/* A round marker at the start of each row, filled when picked, so a row reads as something to tap. */
+.bdg-choice--row::before {
+  content: "";
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: var(--bdg-dot);
+  height: var(--bdg-dot);
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+.bdg-choice--row:has(:checked)::before {
+  background: radial-gradient(circle, currentColor 0 34%, transparent 38%);
+}
+.bdg-choice--row:has(:disabled)::before { border-style: dashed; }
+/* the "show my name" box in step 2: a square mark instead of a round one, filled when ticked */
+.bdg-choice--check::before { border-radius: 0; }
+.bdg-choice--check:has(:checked)::before {
+  background: currentColor;
+  box-shadow: inset 0 0 0 3px var(--bdg-picked);
+}
+.bdg-choice--row .bdg-choice__body { flex: 1 1 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bdg-choice { transition: none; }
+}
+
+.bdg-choice__body { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.bdg-choice__title { font-family: var(--font-heading); }
+.bdg-choice__text { color: var(--bdg-muted); }
+.bdg-choice__side { flex: 0 0 auto; font-family: var(--font-heading); font-size: 1.25em; text-align: right; }
+.bdg-choice__side--soon { font-family: var(--font-body); font-size: 1em; color: var(--bdg-muted); }
+/* In the two-column payment grid there is no room beside the text: the tag goes under it. */
+.bdg-rows--two .bdg-choice--row:has(.bdg-choice__side--soon:not([hidden])) { flex-wrap: wrap; row-gap: 0; }
+.bdg-rows--two .bdg-choice__side--soon {
+  flex-basis: 100%;
+  padding-left: calc(var(--bdg-dot) + var(--bdg-space-2));
+  font-size: .875em;
+  text-align: left;
+}
+
+.bdg-sub {
+  min-width: 0;
+  margin: var(--bdg-space-3) 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.bdg-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--bdg-space-2);
+  margin-top: var(--bdg-space-4);
+}
+@media (max-width: 767px) {
+  .bdg-nav .bdg-btn { flex: 1 1 100%; }
+  .bdg-nav .bdg-btn[type="submit"] { order: -1; }
+}
+
+.bdg-summary {
+  padding: var(--bdg-space-3);
+  border: var(--bdg-line-w) solid var(--bdg-line);
+  line-height: 1.5;
+}
+.bdg-summary__title { margin: 0 0 var(--bdg-space-2); }
+.bdg-summary__items { margin: 0 0 var(--bdg-space-2); padding: 0 0 0 1.2em; }
+.bdg-summary__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--bdg-space-1) var(--bdg-space-3);
+  margin: 0;
+  padding-top: var(--bdg-space-2);
+  border-top: var(--bdg-line-w) solid var(--bdg-line);
+}
+.bdg-summary__list dd { margin: 0; text-align: right; }
+.bdg-summary__label { color: var(--bdg-muted); }
+.bdg-summary__total { font-family: var(--font-heading); }
+.bdg-summary__ars { margin: var(--bdg-space-2) 0 0; color: var(--bdg-muted); text-align: right; }
+/* where the pesos come from: the live dollar and its source, under the amount */
+.bdg-summary__rate { margin: var(--bdg-space-1) 0 0; color: var(--bdg-muted); text-align: right; }
+.bdg-summary__rate a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+
+.bdg-fields { display: grid; gap: var(--bdg-space-3); margin-top: var(--bdg-space-4); }
+@media (min-width: 768px) {
+  .bdg-fields { grid-template-columns: 1fr 1fr; }
+}
+
+.bdg-panel {
+  margin-top: var(--bdg-space-3);
+  padding: var(--bdg-space-1) var(--bdg-space-3);
+  border-left: var(--bdg-mark-w) solid var(--text);
+}
+.bdg-panel:empty { display: none; }
+.bdg-panel .bdg-btn { margin: var(--bdg-space-1) 0; }
+.bdg-panel__warn {
+  padding: var(--bdg-space-1) var(--bdg-space-2);
+  background: var(--bdg-warn);
+  color: var(--black);
+  font-weight: 700;
+}
+.bdg-panel__ref { font-weight: 700; }
+.bdg-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bdg-space-1) var(--bdg-space-2);
+}
+.bdg-copy__value {
+  padding: var(--bdg-space-1) var(--bdg-space-2);
+  background: var(--bdg-picked);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.bdg-sent {
+  margin-top: var(--bdg-space-3);
+  padding: var(--bdg-space-3);
+  border: var(--bdg-line-w) solid var(--text);
+}
+.bdg-sent__title { margin: 0 0 var(--bdg-space-1); }
+.bdg-sent__body {
+  margin: var(--bdg-space-2) 0;
+  padding: var(--bdg-space-2);
+  background: var(--bdg-picked);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+
+/* ---------- 7. the goal and what it pays for ---------- */
+/* One row per cost: name with a tag that says paid (filled) or estimated (outlined), a muted line on what
+   it covers; the amount sits on the right in the heading font. The price closes the table under a black line. */
+.bdg-costs { max-width: var(--bdg-form-w); margin: 0 auto; }
+.bdg-costs__title { margin-top: 0; }
+.bdg-costs__table {
+  width: 100%;
+  margin: var(--bdg-space-3) 0 var(--bdg-space-2);
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.bdg-costs__table th,
+.bdg-costs__table td {
+  padding: var(--bdg-space-2) 0;
+  border-top: var(--bdg-line-w) solid var(--bdg-line);
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+.bdg-costs__table td {
+  padding-left: var(--bdg-space-2);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
+}
+.bdg-costs__table thead th { padding: 0 0 var(--bdg-space-1); border-top: 0; color: var(--bdg-muted); font-size: .8125rem; }
+.bdg-costs__table thead th:last-child { text-align: right; }
+.bdg-costs__table tbody th { line-height: 1.2; }   /* a name that wraps on a phone keeps its lines close */
+.bdg-costs__name { font-family: var(--font-heading); font-size: 1.25rem; }
+.bdg-costs__detail { display: block; margin-top: .375rem; color: var(--bdg-muted); line-height: 1.45; }
+.bdg-costs__state {
+  display: inline-block;
+  margin-left: .25rem;
+  padding: .05rem .4rem;
+  border: var(--bdg-line-w) solid var(--text);
+  font-size: .75rem;
+  line-height: 1.4;
+  vertical-align: .2em;
+  white-space: nowrap;
+}
+.bdg-costs__state--paid { background: var(--text); color: var(--bg); }
+/* Joya's share is a minus: muted, so it reads as what Joya takes off, not as a cost */
+.bdg-costs__joya th,
+.bdg-costs__joya td { color: var(--bdg-muted); }
+/* its range breaks after the first amount on a narrow phone, which has no room for both */
+@media (max-width: 479px) {
+  .bdg-costs__joya td { white-space: normal; }
+}
+.bdg-costs__table tfoot th,
+.bdg-costs__table tfoot td { border-top-color: var(--text); font-family: var(--font-heading); }
+.bdg-costs__table tfoot th { font-size: 1.5rem; line-height: 1.2; }
+.bdg-costs__table tfoot td { font-size: 2rem; line-height: 1; }
+
+/* ---------- 8. who is making it happen ---------- */
+/* One row per supporter, as on chakanafa.org: the name over a muted line (what, how, when), the amount on the right */
+.bdg-people { max-width: var(--bdg-form-w); margin: 0 auto; }
+.bdg-people__title { margin-top: 0; }
+.bdg-people__list { margin: var(--bdg-space-3) 0 var(--bdg-space-2); padding: 0; list-style: none; border-bottom: var(--bdg-line-w) solid var(--bdg-line); }
+.bdg-people__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--bdg-space-2);
+  padding: var(--bdg-space-2) 0;
+  border-top: var(--bdg-line-w) solid var(--bdg-line);
+}
+.bdg-people__who { margin: 0; line-height: 1.3; }
+.bdg-people__name { display: block; font-family: var(--font-heading); }
+.bdg-people__line { display: block; margin-top: .25rem; color: var(--bdg-muted); font-size: .875rem; }
+.bdg-people__amount { margin: 0; font-family: var(--font-heading); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bdg-people__empty { margin: var(--bdg-space-3) 0 var(--bdg-space-2); padding: var(--bdg-space-2) 0; border-block: var(--bdg-line-w) solid var(--bdg-line); }
+
+/* ---------- 9. notes, and data and privacy ---------- */
+/* "Datos y privacidad" opens under the notes, as on chakanafa.org */
+.bdg-details { margin-top: var(--bdg-space-3); border-top: var(--bdg-line-w) solid var(--bdg-line); }
+.bdg-details summary { padding: var(--bdg-space-2) 0; font-family: var(--font-heading); cursor: pointer; }
+.bdg-details[open] summary { padding-bottom: var(--bdg-space-1); }
+.bdg-details > .bdg-notes__list { padding-bottom: var(--bdg-space-2); }
+.bdg-notes { max-width: var(--bdg-form-w); margin: 0 auto; }
+.bdg-notes__title { margin-top: 0; }
+.bdg-notes__list { margin: 0; padding: 0 0 0 1.2em; }
+.bdg-notes__list li + li { margin-top: var(--bdg-space-1); }
