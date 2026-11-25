@@ -36,7 +36,7 @@ test('settings as shipped: every payment method is ready', () => {
   assert.equal(mp.alias, 'joya.camp');
   assert.match(mp.cvu, /^\d{22}$/);
   assert.ok(mp.holder);
-  assert.match(rules.safeUrl(mp.link), /^https:\/\/mpago\.la\/\w+$/);
+  assert.equal(rules.safeUrl(mp.link), '', 'a pay button is back: the old one opened another account than joya.camp');
   assert.equal(rules.CONFIG.methods.venmo.handle, 'alevizio');
   assert.equal(rules.safeUrl(rules.CONFIG.methods.wise.link), 'https://wise.com/pay/me/alejandrov1131');
   assert.deepEqual(rules.CONFIG.methods.crypto.map((w) => w.coin + ' ' + w.network), ['BTC Bitcoin', 'USDC Ethereum']);

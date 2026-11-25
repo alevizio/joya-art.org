@@ -43,7 +43,7 @@
     /* A method with nothing filled in shows as "coming soon" and cannot be picked. */
     methods: {
       /* alias and/or an https payment link; the CVU and the account holder's name show under the alias when set */
-      mercadopago: { alias: 'joya.camp', cvu: '0000003100010939921563', holder: 'Juan Beverati', link: 'https://mpago.la/2wXMx3M' },
+      mercadopago: { alias: 'joya.camp', cvu: '0000003100010939921563', holder: 'Juan Beverati' },
       /* one line per wallet: the coin, the network as the wallet names it, and the address */
       crypto: [
         { coin: 'BTC', network: 'Bitcoin', address: '3MPaBYKzC3xD9iBUCGE787H2kr6Cky8tqF' },
