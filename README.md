@@ -17,7 +17,8 @@ events.html                        the events grid
 events/<slug>.html                 one page per event, e.g. events/burning-man-2022.html
 404.html                           "page not found": shows the home page, as the original did (see below)
 assets/css/site.css                the one stylesheet (fonts, tokens, header, sections, grids, blocks)
-assets/js/site.js                  the one script (header, menu, highlights, galleries, video, marquee)
+assets/js/site.js                  the one script (header, ES / EN switch, menu, highlights, galleries, video, marquee)
+assets/js/lang.js                  picks English or Spanish in <head>, before the page is drawn
 assets/fonts/                      Archivo Black and Albert Sans, with their OFL licences
 assets/img/logo.png                header logo (89 x 70)
 assets/img/og/<slug>.jpg           share pictures of the event pages (1500 wide)
@@ -63,6 +64,26 @@ as `row-start / column-start / row-end / column-end` lines: `--m` on phones, `--
 The older event pages (2019 to 2022) use 12-column rows instead (`.cl__row` / `.cl__col` with
 `--span`), as they did on the original.
 
+## English and Spanish
+
+Every page carries its words in both languages, and the ES / EN switch in the header picks one.
+A text block is written twice, English first, each marked with its language; the stylesheet hides
+the one not chosen:
+
+```html
+<p class="t-center" lang="en">We like music too.</p><p class="t-center" lang="es">También nos gusta la música.</p>
+```
+
+Menu links, the skip link, the footer and the event links are pairs of `<span lang="en">` and
+`<span lang="es">`. Words that cannot be written twice carry the Spanish beside the English: the
+Contact marquee (`data-es`), a page title (`data-title-es` on `<html>`) and labels read aloud
+(`data-label-es`). Names (events, the crew) are written once.
+
+`assets/js/lang.js` runs in `<head>`: `?lang=es` or `?lang=en` in the address, then the visitor's
+last choice, then the time zone (Argentina Spanish, the United States English), then the browser's
+language, else Spanish. The choice is kept for every page, /badge included (it keeps its words in
+`assets/js/badge.js`). `node --test assets/js/` checks that no block is left in one language.
+
 ## Adding a picture
 
 Every picture is shipped in up to seven sizes (the ones the old image CDN served), named by
@@ -88,7 +109,7 @@ original pages used (so the browser picks the same file) and should stay as they
 ## Adding an event
 
 Copy one of `events/*.html` (Burning Man 2023 for the newer layout), change the title, the
-`<meta>` tags and canonical address in `<head>`, the text and the pictures. Then add a card to
+`<meta>` tags and canonical address in `<head>`, the text in English and Spanish, and the pictures. Then add a card to
 `events.html` (same markup as the others, picture in `assets/img/events/`), fix the
 previous / next links at the bottom of the neighbouring event pages, and add the address to
 `sitemap.xml`.

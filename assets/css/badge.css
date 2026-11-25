@@ -53,36 +53,8 @@
 .page-badge .header__bar,
 .page-badge .menu { background: var(--black); }
 .page-badge .header__logo img { filter: invert(1); }
-/* The language switch, small, at the top right of the header: after the links on a wide screen,
-   before the burger on a phone. Each button is drawn small but still takes a 44 px tall tap. */
-.bdg-lang {
-  --bdg-lang-h: 1.75rem;
-  display: inline-flex;
-  flex: 0 0 auto;
-  margin-left: var(--bdg-space-3);
-  border: var(--bdg-line-w) solid currentColor;
-  font-size: .75rem;
-  line-height: 1;
-}
-.bdg-lang__btn {
-  position: relative;
-  min-width: 2.25rem;
-  height: var(--bdg-lang-h);
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-family: var(--font-heading);
-  cursor: pointer;
-}
-.bdg-lang__btn::before { content: ""; position: absolute; inset: calc((var(--bdg-tap-small) - var(--bdg-lang-h)) / -2) 0; }
-.bdg-lang__btn[aria-pressed="true"] { background: var(--white); color: var(--black); }
-@media (max-width: 799px), (pointer: coarse) and (max-width: 1024px) {
-  .page-badge .header__logo { flex: 1 1 auto; }
-  .bdg-lang { margin: 0 var(--bdg-space-2) 0 0; }
-}
+/* The language switch (site.css) on the dark header: the chosen language in white. */
+.page-badge .lang__btn[aria-pressed="true"] { background: var(--white); color: var(--black); }
 /* At the top of the page the bar is see-through, so the lanyard (the 3D canvas reaches up to here) runs on
    behind the menu, under a soft dark fade that keeps the links readable. Once scrolled it is solid again. */
 .page-badge .header:not(.is-shrunk) .header__bar {

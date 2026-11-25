@@ -1,5 +1,5 @@
 /* joya-art.org: the one script.
-   Header that hides on scroll, mobile menu, highlight shapes, fitted titles, masonry
+   Header that hides on scroll, the ES / EN switch, mobile menu, highlight shapes, fitted titles, masonry
    galleries, fade-up pictures, YouTube posters, the video player, the marquee.
    Everything here is progressive: without it the pages still read and link correctly. */
 (function () {
@@ -58,6 +58,48 @@
     }, { passive: true });
   }
 
+  /* ---------- language: English or Spanish. lang.js picked it in <head>, and site.css shows only the
+     elements marked with that lang. Here: the ES / EN switch, which remembers the choice for every page,
+     and the words that cannot be written twice in the HTML: the marquee (data-es), the page title
+     (data-title-es on <html>) and labels read aloud (data-label-es). Each keeps its English beside it. */
+  var LANG_STORE = (window.JoyaLang && window.JoyaLang.STORE) || 'joya-lang';
+  function lang() { return /^es/i.test(root.lang) ? 'es' : 'en'; }
+  function menuLabel(open) {
+    if (lang() === 'es') return open ? 'Cerrar menú' : 'Abrir menú';
+    return open ? 'Close Menu' : 'Open Menu';
+  }
+  /* The words for the chosen language: the Spanish in attr (data-…-es), the English saved the first time
+     in its data-…-en twin from what the page showed. */
+  function localized(el, attr, shown) {
+    var en = attr.replace(/-es$/, '-en');
+    if (!el.hasAttribute(en)) el.setAttribute(en, shown);
+    return el.getAttribute(lang() === 'es' ? attr : en);
+  }
+  function applyLang() {
+    var l = lang();
+    document.querySelectorAll('[data-lang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === l));
+    });
+    document.querySelectorAll('[data-es]').forEach(function (el) {
+      el.textContent = localized(el, 'data-es', el.textContent);
+    });
+    document.querySelectorAll('[data-label-es]').forEach(function (el) {
+      el.setAttribute('aria-label', localized(el, 'data-label-es', el.getAttribute('aria-label') || ''));
+    });
+    if (root.hasAttribute('data-title-es')) document.title = localized(root, 'data-title-es', document.title);
+    var button = document.querySelector('.burger');
+    if (button) button.setAttribute('aria-label', menuLabel(root.classList.contains('menu-open')));
+  }
+  applyLang();
+  document.addEventListener('click', function (e) {
+    var button = e.target.closest('[data-lang]');
+    if (!button) return;
+    root.lang = button.getAttribute('data-lang');
+    try { window.localStorage.setItem(LANG_STORE, root.lang); } catch (err) { /* private window: this visit only */ }
+    applyLang();
+    layoutAll();   // other words, other line breaks: the highlights and fitted titles are measured again
+  });
+
   /* ---------- mobile menu ---------- */
   var burger = document.querySelector('.burger');
   var menu = document.getElementById('menu');
@@ -65,7 +107,7 @@
     var setOpen = function (open) {
       root.classList.toggle('menu-open', open);
       burger.setAttribute('aria-expanded', String(open));
-      burger.setAttribute('aria-label', open ? 'Close Menu' : 'Open Menu');
+      burger.setAttribute('aria-label', menuLabel(open));
       if (open) {
         header.classList.remove('is-hidden');
         var first = menu.querySelector('a');

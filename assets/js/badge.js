@@ -56,7 +56,7 @@
   var METHOD_IDS = ['mercadopago', 'crypto', 'venmo', 'wise'];
   var LAST_STEP = 2;
   var LANGS = ['es', 'en'];
-  var LANG_STORE = 'joya-badge-lang';
+  var LANG_STORE = 'joya-lang';   // the same key as lang.js: one choice for every page
 
   /* ---------- 2. words ---------- */
   var WORDS = {

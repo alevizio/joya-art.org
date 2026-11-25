@@ -210,6 +210,11 @@ pre code {
   line-height: 1em;
   letter-spacing: .01em;
 }
+/* Every page holds its words in English and Spanish; the language not chosen is hidden. lang.js sets
+   <html lang> before the page is drawn; without it the page stays English. The switch's own buttons
+   carry a lang too, and always show. */
+html:not([lang|="es"]) [lang="es"]:not([data-lang]),
+html[lang|="es"] [lang="en"]:not([data-lang]) { display: none !important; }
 .visually-hidden {
   position: absolute !important;
   width: 1px; height: 1px;
@@ -286,6 +291,35 @@ pre code {
 /* the nav sizes like body text but must not inherit a section's size */
 .header__nav { --v: 1.2; }
 
+/* The language switch, ES / EN, small: after the links on a wide screen, before the burger on a phone.
+   Each button is drawn 1.75rem tall but still takes a 44px tall tap. */
+.lang {
+  --lang-h: 1.75rem;
+  --lang-tap: 44px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-left: var(--nav-gap);
+  border: 1px solid currentColor;
+  font-size: .75rem;
+  line-height: 1;
+  pointer-events: auto;
+}
+.lang__btn {
+  position: relative;
+  min-width: 2.25rem;
+  height: var(--lang-h);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+.lang__btn::before { content: ""; position: absolute; inset: calc((var(--lang-tap) - var(--lang-h)) / -2) 0; }
+.lang__btn[aria-pressed="true"] { background: var(--black); color: var(--white); }
+
 /* burger: two 1px lines 11px apart in a 35px box; the button keeps the browser's own
    1px / 6px padding, as on the original, so it sits 6px in from the right edge */
 .burger {
@@ -354,7 +388,8 @@ pre code {
   :root { --header-pad: 6vw; --header-pad-shrunk: min(6vw, 2vmax); --header-h: calc(12vw + 40px); }
   .header__bar { padding-left: 6vw; padding-right: 6vw; }
   .header__nav { display: none; }
-  .header__logo { flex: 1 0 calc(100% - 50px); }
+  .header__logo { flex: 1 1 auto; }
+  .lang { margin: 0 1rem 0 0; }
   .burger { display: block; }
   .menu { display: flex; }
 }
