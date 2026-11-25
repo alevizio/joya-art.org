@@ -30,9 +30,9 @@
        when the badges are ready: this is the web app address its script gives. Empty saves nothing; the
        order email still goes out. The script is in ~/Documents/joya-badge-fundraiser/sheet. */
     orderSheetUrl: 'https://script.google.com/macros/s/AKfycbw9Q4T-J5FWOVNwkjHuh7ZsE8HYMsJTvhRVw9Hwh5q7ExercZ0-09CVlUFmZTjp-p4a/exec',
-    badgesTotal: 100,                // the boards that were ordered: the most that can be asked for, and the end of the bar in the hero
+    badgesTotal: 100,                // the boards that were ordered: the most that can be asked for. The page never says the number
     /* Everyone who paid, newest first, added by hand once the payment shows up. It fills "Quienes lo hacen
-       posible" and the bar in the hero (the badges here are the ones claimed). name: only if the order email
+       posible", and its badges count against badgesTotal. name: only if the order email
        says "Mostrar mi nombre en la lista: sí", else ''; badges: how many;
        via: mercadopago, crypto, venmo or wise; date: 'YYYY-MM-DD'. For example:
        { name: 'Ana', badges: 2, via: 'mercadopago', date: '2026-11-21' } */
@@ -65,7 +65,6 @@
       'draft.banner': 'Borrador: los medios de pago todavía no están confirmados.',
       'hero.title': 'Llevá la *luz* de _Joya_\u00a0puesta',
       'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las placas ya se están fabricando. Con tu aporte cubrimos las placas, las baterías y las carcasas.',
-      'progress.text': '{claimed} de {total} badges pedidos',
       'hero.cta': 'Quiero el mío',
       'hero.caption': 'Modelo 3D del badge terminado. La carcasa todavía está en pruebas.',
       'alt.badge': 'Modelo 3D del badge terminado: la placa con sus 13 luces prendidas en una carcasa negra, con un clip arriba y un lanyard',
@@ -242,7 +241,6 @@
       'draft.banner': 'Draft: payment methods are not confirmed yet.',
       'hero.title': 'Wear the *light* of _Joya_',
       'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. The boards are already being made. Your contribution covers the boards, the batteries and the shells.',
-      'progress.text': '{claimed} of {total} badges claimed',
       'hero.cta': 'I want mine',
       'hero.caption': '3D model of the finished badge. The shell is still being tested.',
       'alt.badge': '3D model of the finished badge: the board with its 13 lights on in a black shell, with a clip on top and a lanyard',
@@ -478,7 +476,7 @@
     return !config.pricesConfirmed || !METHOD_IDS.some(function (id) { return methodReady(config, id); });
   }
 
-  /* How far the run is, for the bar in the hero: whole badges, never under zero or over the total. */
+  /* How far the run is, for the order limit: whole badges, never under zero or over the total. */
   function progress(config) {
     var total = wholeCount(config.badgesTotal);
     var claimed = (config.supporters || []).reduce(function (sum, person) { return sum + wholeCount(person.badges); }, 0);
@@ -872,12 +870,9 @@
     if (state.step === LAST_STEP) { renderSummary(); renderPanel(); }
   }
 
-  /* The badge count in the hero and "Quienes lo hacen posible": they change only with the settings and
-     the language, so they are drawn once per language, not on every keystroke. */
-  function renderRun() {
-    var run = progress(CONFIG);
-    all('[data-progress]').forEach(function (bar) { bar.max = run.total; bar.value = run.claimed; });
-    all('[data-progress-text]').forEach(function (node) { node.textContent = say('progress.text', run); });
+  /* "Quienes lo hacen posible": it changes only with the settings and the language, so it is drawn
+     once per language, not on every keystroke. */
+  function renderPeople() {
     var people = supporterRows(CONFIG, state.lang);
     all('[data-people]').forEach(function (list) {
       list.hidden = !people.length;
@@ -915,7 +910,7 @@
       button.setAttribute('aria-pressed', String(button.getAttribute('data-lang') === lang));
     });
     if (!sentBox.hidden) showSent();
-    renderRun();
+    renderPeople();
     render();
   }
 

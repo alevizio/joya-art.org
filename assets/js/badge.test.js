@@ -76,7 +76,6 @@ test('the badge count comes from the supporters: whole badges, never under zero 
   assert.equal(rules.maxBadges(run(30, 7)), 63);
   assert.equal(rules.maxBadges(run(140)), 0);
   assert.equal(rules.maxBadges({}), 0);
-  assert.equal(rules.t('es', 'progress.text', rules.progress(run(37))), '37 de 100 badges pedidos');
   assert.deepEqual(rules.progress(rules.CONFIG), { claimed: 5, total: 100 }, 'the page ships with the five prototype badges');
   assert.deepEqual(rules.supporterRows(rules.CONFIG, 'es'), [{ name: 'Anónimo', line: '5 badges', amount: 'USD 125' }]);
 });
@@ -290,9 +289,18 @@ test('badge.html matches the settings', () => {
   assert.ok(html.includes('data-qty-total>' + rules.t('es', 'qty.total', { total: one }) + '<'), 'first total differs from the settings');
   assert.ok(html.includes('data-qty-each>' + rules.t('es', 'qty.each', { unit: one }) + '<'), 'first price differs from the settings');
   assert.ok(html.includes('value="1" data-field="qty"'), 'the picker starts at one');
-  const run = rules.progress(rules.CONFIG);
-  assert.ok(html.includes('data-progress-text>' + rules.t('es', 'progress.text', run) + '<'), 'badge count differs from the settings');
-  assert.ok(html.includes('max="' + run.total + '" value="' + run.claimed + '"'), 'bar differs from the settings');
+});
+
+/* Orders stop at badgesTotal, but the page, its words and its share card never say how many there are. */
+test('the page never says how many badges are made', () => {
+  const words = [rules.WORDS.es, rules.WORDS.en].flatMap((lang) => Object.values(lang)).join('\n');
+  for (const said of [/\b100\b/, /hacemos/i, /\{total\} badges/, /badges (pedidos|claimed)/]) {
+    assert.ok(!said.test(words), 'the words say ' + said);
+    assert.ok(!said.test(html.replace(/<[^>]*>/g, ' ')), 'the page says ' + said);
+  }
+  assert.ok(!/100/.test(html.match(/og:image:alt" content="([^"]*)"/)[1]), 'the share card text says it');
+  assert.ok(!html.includes('data-progress'), 'the bar is back');
+  assert.equal(rules.maxBadges(rules.CONFIG), 95, 'orders still stop at the run');
 });
 
 test('what each badge pays for adds up to its price, and every sentence in both languages names that price', () => {

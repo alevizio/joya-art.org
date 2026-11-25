@@ -28,13 +28,11 @@
   --bdg-num-size: clamp(1.8rem, 4vw, 3rem);         /* the big words in the facts row */
   --bdg-warn: hsl(45 100% 85%);                     /* draft banner, crypto warning: black text on it */
   --bdg-error: hsl(0 70% 38%);
-  /* The colours the badge's LEDs show in the renders. Used for glows and the progress bar only, never for text. */
+  /* The colours the badge's LEDs show in the renders. Used for glows only, never for text. */
   --bdg-led-pink: hsl(330 100% 62%);
   --bdg-led-violet: hsl(268 90% 64%);
   --bdg-led-amber: hsl(42 100% 62%);
   --bdg-led-warm: hsl(30 100% 88%);
-  --bdg-led-strip: linear-gradient(90deg, var(--bdg-led-pink), var(--bdg-led-violet) 50%, var(--bdg-led-amber));
-  --bdg-bar-h: 1rem;                                /* the progress bar */
   --bdg-hl-yellow: rgb(245 229 0);                  /* the hand drawn marks: same colours as on the home page */
   --bdg-hl-pink: rgb(255 0 134);
   --bdg-dot: 1.375rem;                           /* the round marker of a row you can pick */
@@ -154,28 +152,6 @@
   .bdg-hero__title .hl[data-shape="marker"][data-drawn] { transition: none; }
 }
 .bdg-hero__text .bdg-btn { margin-top: var(--bdg-space-2); }
-/* How many badges are spoken for, drawn as a strip of LEDs: one square per badge of the run.
-   Unclaimed squares are dim, claimed ones light up in the badge's colours. */
-.bdg-progress { margin: var(--bdg-space-3) 0 var(--bdg-space-1); }
-.bdg-progress__text { margin: 0 0 var(--bdg-space-1); font-family: var(--font-heading); }
-.bdg-progress__bar {
-  --bdg-unlit: color-mix(in srgb, var(--text) 16%, transparent);
-  display: block;
-  width: 100%;
-  height: var(--bdg-bar-h);
-  border: 0;
-  border-radius: 0;
-  background: var(--bdg-unlit);
-  color: var(--bdg-led-pink);
-  -webkit-appearance: none;
-  appearance: none;
-  /* gaps between the 100 squares */
-  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
-  mask: repeating-linear-gradient(90deg, #000 0 calc(1% - 1px), transparent calc(1% - 1px) 1%);
-}
-.bdg-progress__bar::-webkit-progress-bar { background: var(--bdg-unlit); }
-.bdg-progress__bar::-webkit-progress-value { background: var(--bdg-led-strip); }
-.bdg-progress__bar::-moz-progress-bar { background: var(--bdg-led-strip); }
 /* The 3D badge (js/badge/viewer.js). A still of it shows first and stays when there is no WebGL;
    the live canvas fades in over it once the first frame is drawn. */
 .bdg-hero__figure { margin: 0; }
