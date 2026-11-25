@@ -80,18 +80,18 @@ test('the badge count comes from the supporters: whole badges, never under zero 
   assert.deepEqual(rules.supporterRows(rules.CONFIG, 'es'), [{ name: 'Anónimo', line: '5 badges', amount: 'USD 125' }]);
 });
 
-test('Quienes lo hacen posible: the name or Anonymous, what, how, when and how much', () => {
+test('Quienes lo hacen posible: the name or Anonymous, what, when and how much, never how they paid', () => {
   const config = { ...rules.CONFIG, supporters: [
     { name: ' Ana ', badges: 2, via: 'mercadopago', date: '2026-11-21' },
     { name: '', badges: 3, via: 'venmo', date: '2026-11-20' },
     { name: '', badges: 1, via: 'nope', date: 'someday' }
   ] };
   assert.deepEqual(rules.supporterRows(config, 'es'), [
-    { name: 'Ana', line: '2 badges · Mercado Pago · 21 nov', amount: 'USD 50' },
-    { name: 'Anónimo', line: '3 badges · Venmo · 20 nov', amount: 'USD 75' },
+    { name: 'Ana', line: '2 badges · 21 nov', amount: 'USD 50' },
+    { name: 'Anónimo', line: '3 badges · 20 nov', amount: 'USD 75' },
     { name: 'Anónimo', line: '1 badge', amount: 'USD 25' }
   ]);
-  assert.deepEqual(rules.supporterRows(config, 'en')[1], { name: 'Anonymous', line: '3 badges · Venmo · Nov 20', amount: 'USD 75' });
+  assert.deepEqual(rules.supporterRows(config, 'en')[1], { name: 'Anonymous', line: '3 badges · Nov 20', amount: 'USD 75' });
 });
 
 test('one price per badge, however many are in the order', () => {
@@ -370,7 +370,7 @@ test('the Sheet fills the list: paid orders on top, the limit counts them, junk 
   assert.ok(paid.every((row) => !('email' in row)), 'an email got through');
   const listed = rules.withPaid(rules.CONFIG, paid);
   assert.deepEqual(rules.supporterRows(listed, 'es').map((r) => r.name), ['Bea', 'Anónimo', 'Odd', 'Anónimo']);
-  assert.equal(rules.supporterRows(listed, 'es')[0].line, '2 badges · Venmo · 25 nov');
+  assert.equal(rules.supporterRows(listed, 'es')[0].line, '2 badges · 25 nov');
   assert.equal(rules.maxBadges(listed), 89, '5 prototypes and 6 paid of 100');
   assert.equal(rules.CONFIG.supporters.length, 1, 'the settings themselves stay as written');
   for (const broken of [null, {}, { supporters: 'x' }, []]) assert.deepEqual(rules.paidSupporters(broken, rules.CONFIG), []);

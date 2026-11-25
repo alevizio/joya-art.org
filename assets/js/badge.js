@@ -489,13 +489,12 @@
   }
 
   /* "Quienes lo hacen posible", one row per supporter as the settings list them: the name or Anonymous, what
-     they got, how they paid and the day, and what they paid. */
+     they got and the day, and what they put in. How they paid never shows. */
   function supporterRows(config, lang) {
     return (config.supporters || []).map(function (person) {
       var badges = wholeCount(person.badges);
       var what = badges === 1 ? t(lang, 'people.one') : t(lang, 'people.many', { n: badges });
       var line = [what];
-      if (METHOD_IDS.indexOf(person.via) !== -1) line.push(t(lang, 'pay.' + person.via));
       var day = new Date(String(person.date) + 'T12:00:00');
       if (!isNaN(day)) line.push(day.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-AR', { day: 'numeric', month: 'short' }));
       return {
