@@ -31,10 +31,10 @@
        order email still goes out. The script is in ~/Documents/joya-badge-fundraiser/sheet. */
     orderSheetUrl: 'https://script.google.com/macros/s/AKfycbw9Q4T-J5FWOVNwkjHuh7ZsE8HYMsJTvhRVw9Hwh5q7ExercZ0-09CVlUFmZTjp-p4a/exec',
     badgesTotal: 100,                // the boards that were ordered: the most that can be asked for. The page never says the number
-    /* Everyone who paid, newest first, added by hand once the payment shows up. It fills "Quienes lo hacen
-       posible", and its badges count against badgesTotal. name: only if the order email
-       says "Mostrar mi nombre en la lista: sí", else ''; badges: how many;
-       via: mercadopago, crypto, venmo or wise; date: 'YYYY-MM-DD'. For example:
+    /* "Quienes lo hacen posible", and its badges count against badgesTotal. The paid orders come from the
+       Sheet: orderSheetUrl answers a GET with every row ticked "Pagado", newest first, and the page puts
+       them above these. Here only what never went through the Sheet, by hand. name: '' shows Anónimo;
+       badges: how many; via: mercadopago, crypto, venmo or wise; date: 'YYYY-MM-DD'. For example:
        { name: 'Ana', badges: 2, via: 'mercadopago', date: '2026-11-21' } */
     supporters: [
       /* the five prototype badges, bought before the page, as one anonymous line */
@@ -218,7 +218,7 @@
       'people.anon': 'Anónimo',
       'people.one': '1 badge',
       'people.many': '{n} badges',
-      'people.note': 'Sumamos cada aporte a mano cuando se confirma el pago. Quien no eligió mostrar su nombre figura como Anónimo.',
+      'people.note': 'Cada aporte aparece acá cuando confirmamos el pago. Quien no eligió mostrar su nombre figura como Anónimo.',
       'notes.title': 'Para que\u00a0sepas',
       'notes.1': 'Las placas ya se están fabricando.',
       'notes.2': 'Todavía no tenemos fecha de entrega. Te avisamos por mail cuándo y cómo lo recibís.',
@@ -394,7 +394,7 @@
       'people.anon': 'Anonymous',
       'people.one': '1 badge',
       'people.many': '{n} badges',
-      'people.note': 'We add each contribution by hand once the payment is confirmed. Anyone who did not choose to show their name shows up as Anonymous.',
+      'people.note': 'Each contribution shows up here once we confirm the payment. Anyone who did not choose to show their name shows up as Anonymous.',
       'notes.title': 'Good to know',
       'notes.1': 'The boards are already being made.',
       'notes.2': 'We do not have a delivery date yet. We will email you when and how you get it.',
@@ -606,6 +606,29 @@
     return /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url) ? url : '';
   }
 
+  /* The Sheet's answer to a GET, as list rows: the paid orders, newest first. A row that does not look like
+     one is left out, so a broken answer never breaks the page. */
+  function paidSupporters(data, config) {
+    var rows = data && Array.isArray(data.supporters) ? data.supporters.slice(0, 500) : [];
+    return rows.map(function (row) {
+      row = row || {};
+      return {
+        name: String(row.name || '').trim().slice(0, 120),
+        badges: wholeCount(row.badges),
+        via: METHOD_IDS.indexOf(row.via) !== -1 ? row.via : '',
+        date: /^\d{4}-\d{2}-\d{2}$/.test(String(row.date)) ? row.date : ''
+      };
+    }).filter(function (row) { return row.badges > 0 && row.badges <= wholeCount(config.badgesTotal); });
+  }
+
+  /* The settings with the paid orders listed above the ones written by hand. */
+  function withPaid(config, paid) {
+    var copy = {};
+    Object.keys(config).forEach(function (key) { copy[key] = config[key]; });
+    copy.supporters = paid.concat(config.supporters || []);
+    return copy;
+  }
+
   function orderText(order, config, lang, ref) {
     var lines = orderItems(order, config, lang);
     lines.push(t(lang, 'mail.total', { total: formatUsd(orderTotal(order, config)) }));
@@ -631,7 +654,8 @@
     progress: progress, supporterRows: supporterRows, maxBadges: maxBadges, parseQty: parseQty,
     orderTotal: orderTotal, formatUsd: formatUsd, formatArs: formatArs, liveRate: liveRate, priced: priced,
     validateStep: validateStep, orderItems: orderItems, venmoUrl: venmoUrl,
-    newReference: newReference, orderRecord: orderRecord, sheetUrl: sheetUrl, orderText: orderText, mailtoUrl: mailtoUrl
+    newReference: newReference, orderRecord: orderRecord, sheetUrl: sheetUrl, orderText: orderText, mailtoUrl: mailtoUrl,
+    paidSupporters: paidSupporters, withPaid: withPaid
   };
   if (typeof module === 'object' && module.exports) { module.exports = rules; return; }
 
@@ -647,6 +671,7 @@
     order: { qty: '1', name: '', email: '', method: '', public: false },
     mep: 0   // the live dólar MEP once read
   };
+  var listed = CONFIG;   // the settings with the paid orders from the Sheet once it answers: the list and the limit
   var sentBox = document.querySelector('[data-sent]');
   var panel = document.querySelector('[data-panel]');
   var summary = document.querySelector('[data-summary]');
@@ -754,6 +779,19 @@
     }).catch(function () { /* no live rate: arsPerUsd stays */ });
   }
 
+  /* Reads the paid orders from the Sheet once; the rows written by hand stay if it does not answer. */
+  function readPaid() {
+    var url = sheetUrl(CONFIG);
+    if (!url || !window.fetch) return;
+    window.fetch(url).then(function (res) { return res.ok ? res.json() : null; }).then(function (data) {
+      var paid = paidSupporters(data, CONFIG);
+      if (!paid.length) return;
+      listed = withPaid(CONFIG, paid);
+      renderPeople();
+      render();
+    }).catch(function () { /* no answer: the rows written by hand stay */ });
+  }
+
   function renderPanel() {
     var id = state.order.method;
     panel.replaceChildren();
@@ -797,7 +835,7 @@
   /* The picker's buttons and its price lines. */
   function renderQty() {
     var qty = parseQty(state.order.qty);
-    var max = maxBadges(CONFIG);
+    var max = maxBadges(listed);
     all('[data-qty-step]').forEach(function (button) {
       var down = Number(button.getAttribute('data-qty-step')) < 0;
       // aria-disabled, not disabled: the button keeps its focus at the end of the range
@@ -813,7 +851,7 @@
   function stepQty(by) {
     var input = form.querySelector('input[name="qty"]');
     var qty = parseQty(input.value);
-    var next = Math.min(maxBadges(CONFIG), Math.max(1, (isNaN(qty) ? 0 : qty) + by));
+    var next = Math.min(maxBadges(listed), Math.max(1, (isNaN(qty) ? 0 : qty) + by));
     input.value = String(next);
     readField(input);
   }
@@ -870,10 +908,10 @@
     if (state.step === LAST_STEP) { renderSummary(); renderPanel(); }
   }
 
-  /* "Quienes lo hacen posible": it changes only with the settings and the language, so it is drawn
-     once per language, not on every keystroke. */
+  /* "Quienes lo hacen posible": it changes only with the paid orders and the language, so it is drawn
+     when the Sheet answers and once per language, not on every keystroke. */
   function renderPeople() {
-    var people = supporterRows(CONFIG, state.lang);
+    var people = supporterRows(listed, state.lang);
     all('[data-people]').forEach(function (list) {
       list.hidden = !people.length;
       list.replaceChildren.apply(list, people.map(function (person) {
@@ -928,7 +966,7 @@
 
   /* Checks the step in view. Shows what is wrong and puts the cursor on it, or returns true. */
   function stepIsValid() {
-    state.errors = validateStep(state.step, state.order, CONFIG);
+    state.errors = validateStep(state.step, state.order, listed);
     renderErrors();
     var first = Object.keys(state.errors)[0];
     if (!first) return true;
@@ -1002,5 +1040,6 @@
 
   applyLang(pickLang(new URLSearchParams(window.location.search).get('lang'), storedLang(), timeZone(), navigator.languages));
   readRate();
+  readPaid();
   watchLoops();
 })();

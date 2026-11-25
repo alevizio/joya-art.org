@@ -351,3 +351,27 @@ test('every page has the same two menus, with Badge in both', () => {
   }
   assert.equal(html.match(/<a href="\/badge" aria-current="page">Badge<\/a>/g).length, 2, 'badge.html should mark Badge as the current page in both menus');
 });
+
+test('the Sheet fills the list: paid orders on top, the limit counts them, junk is left out', () => {
+  const answer = { supporters: [
+    { name: ' Bea ', badges: 2, via: 'venmo', date: '2026-11-25' },
+    { name: '', badges: 1, via: 'crypto', date: '2026-11-25' },
+    { name: 'Too many', badges: 101, via: 'wise', date: '2026-11-25' },
+    { name: 'None', badges: 0 },
+    { name: 'Odd', badges: '3', via: 'cash', date: 'yesterday', email: 'x@example.com' },
+    null
+  ] };
+  const paid = rules.paidSupporters(answer, rules.CONFIG);
+  assert.deepEqual(paid, [
+    { name: 'Bea', badges: 2, via: 'venmo', date: '2026-11-25' },
+    { name: '', badges: 1, via: 'crypto', date: '2026-11-25' },
+    { name: 'Odd', badges: 3, via: '', date: '' }
+  ]);
+  assert.ok(paid.every((row) => !('email' in row)), 'an email got through');
+  const listed = rules.withPaid(rules.CONFIG, paid);
+  assert.deepEqual(rules.supporterRows(listed, 'es').map((r) => r.name), ['Bea', 'Anónimo', 'Odd', 'Anónimo']);
+  assert.equal(rules.supporterRows(listed, 'es')[0].line, '2 badges · Venmo · 25 nov');
+  assert.equal(rules.maxBadges(listed), 89, '5 prototypes and 6 paid of 100');
+  assert.equal(rules.CONFIG.supporters.length, 1, 'the settings themselves stay as written');
+  for (const broken of [null, {}, { supporters: 'x' }, []]) assert.deepEqual(rules.paidSupporters(broken, rules.CONFIG), []);
+});
