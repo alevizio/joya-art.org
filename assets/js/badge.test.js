@@ -169,7 +169,7 @@ test('valid submission: every step passes and the email holds the order', () => 
 
   const text = rules.orderText(order, config, 'es', 'JOYA-TEST0001');
   assert.deepEqual(text.split('\n'), [
-    '2 badges, USD 25 cada uno',
+    '2 badges, USD 25 por badge',
     'Total: USD 50',
     'Medio de pago: Venmo',
     'Código: JOYA-TEST0001',
@@ -181,10 +181,10 @@ test('valid submission: every step passes and the email holds the order', () => 
   /* a Mercado Pago order also says the pesos the buyer saw */
   assert.deepEqual(rules.orderText({ ...order, method: 'mercadopago' }, config, 'es', 'X').split('\n').slice(1, 4), ['Total: USD 50', 'En pesos: ARS 50.000', 'Medio de pago: Mercado Pago']);
   const url = rules.mailtoUrl(order, config, 'es', 'JOYA-TEST0001');
-  assert.ok(url.startsWith('mailto:' + config.orderEmail + '?subject=Pedido%20Joya%20Badge%20JOYA-TEST0001&body='));
+  assert.ok(url.startsWith('mailto:' + config.orderEmail + '?subject=Aporte%20Joya%20Badge%20JOYA-TEST0001&body='));
   assert.equal(decodeURIComponent(url.split('&body=')[1]), rules.orderText(order, config, 'es', 'JOYA-TEST0001'));
   assert.deepEqual(rules.orderItems({ qty: '1' }, config, 'es'), ['Un badge']);
-  assert.deepEqual(rules.orderItems({ qty: '8' }, config, 'es'), ['8 badges, USD 25 cada uno']);
+  assert.deepEqual(rules.orderItems({ qty: '8' }, config, 'es'), ['8 badges, USD 25 por badge']);
 });
 
 test('the buyers Sheet: one row per order, and only a Google Apps Script address gets it', () => {
