@@ -64,7 +64,7 @@
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Borrador: los medios de pago todavía no están confirmados.',
       'hero.title': 'Llevá la *luz* de _Joya_\u00a0puesta',
-      'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las placas ya se están fabricando. Con tu aporte cubrimos las placas, las baterías y las carcasas.',
+      'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. Las placas ya se están fabricando. Estamos juntando lo que cuesta hacerlos: con tu aporte cubrimos la placa, la batería y la carcasa de tu\u00a0badge.',
       'hero.cta': 'Quiero el mío',
       'hero.caption': 'Modelo 3D del badge terminado. La carcasa todavía está en pruebas.',
       'alt.badge': 'Modelo 3D del badge terminado: la placa con sus 13 luces prendidas en una carcasa negra, con un clip arriba y un lanyard',
@@ -194,7 +194,7 @@
       'mail.yes': 'sí',
       'mail.no': 'no',
       'costs.title': 'En qué se usan tus USD\u00a025',
-      'costs.lead': 'Esto cuesta hacer cada badge, de la placa al lanyard. Vos pagás USD\u00a025 y la diferencia la pone Joya: lo que falta para llegar al precio, lo que suba algún costo y las comisiones de los medios de pago.',
+      'costs.lead': 'Esto cuesta hacer cada badge, de la placa al lanyard. Vos aportás USD\u00a025 y Joya pone el resto: lo que falte, lo que suba algún costo y las comisiones de los medios de pago.',
       'costs.caption': 'Lo que cuesta cada badge, en dólares',
       'costs.what': 'Por badge',
       'costs.usd': 'USD',
@@ -233,14 +233,14 @@
       'privacy.3': 'El pago lo procesa el medio que elijas, con sus propias reglas. Un pago en cripto queda a la vista de todos en la red.',
       'privacy.4': 'Tu nombre aparece en «Quienes lo hacen posible» solo si lo elegís. Si no, figurás como Anónimo.',
       'privacy.5': 'La página está en GitHub Pages, que registra las visitas por seguridad.',
-      'privacy.7': 'Para mostrar el precio en pesos, la página lee la cotización del dólar en DolarApi.com. Ese sitio ve tu dirección IP, como cualquier sitio que visitás.',
+      'privacy.7': 'Para mostrar el monto en pesos, la página lee la cotización del dólar en DolarApi.com. Ese sitio ve tu dirección IP, como cualquier sitio que visitás.',
       'privacy.6': '¿Querés que borremos tus datos? Escribinos y los borramos.'
     },
     en: {
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Draft: payment methods are not confirmed yet.',
       'hero.title': 'Wear the *light* of _Joya_',
-      'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. The boards are already being made. Your contribution covers the boards, the batteries and the shells.',
+      'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. The boards are already being made. We are pooling what it costs to make them: your contribution covers the board, the battery and the shell of your\u00a0badge.',
       'hero.cta': 'I want mine',
       'hero.caption': '3D model of the finished badge. The shell is still being tested.',
       'alt.badge': '3D model of the finished badge: the board with its 13 lights on in a black shell, with a clip on top and a lanyard',
@@ -370,7 +370,7 @@
       'mail.yes': 'yes',
       'mail.no': 'no',
       'costs.title': 'What your USD\u00a025 pays for',
-      'costs.lead': 'This is what each badge costs to make, from the board to the lanyard. You pay USD\u00a025 and Joya covers the difference: what is missing to reach the price, any cost that goes up, and the payment fees.',
+      'costs.lead': 'This is what each badge costs to make, from the board to the lanyard. You put in USD\u00a025 and Joya covers the rest: whatever is missing, any cost that goes up, and the payment fees.',
       'costs.caption': 'What each badge costs, in US dollars',
       'costs.what': 'Per badge',
       'costs.usd': 'USD',
@@ -409,7 +409,7 @@
       'privacy.3': 'Your payment is handled by the service you pick, under its own rules. A crypto payment is visible to anyone on the network.',
       'privacy.4': 'Your name shows up under “The people making it happen” only if you choose so. If not, you show up as Anonymous.',
       'privacy.5': 'The page is hosted on GitHub Pages, which logs visits for security.',
-      'privacy.7': 'To show the price in pesos, the page reads the dollar rate from DolarApi.com. That site sees your IP address, as any site you visit does.',
+      'privacy.7': 'To show the amount in pesos, the page reads the dollar rate from DolarApi.com. That site sees your IP address, as any site you visit does.',
       'privacy.6': 'Want us to delete your data? Write to us and we will.'
     }
   };
