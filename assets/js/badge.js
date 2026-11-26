@@ -63,7 +63,7 @@
     es: {
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Borrador: los medios de pago todavía no están confirmados.',
-      'hero.title': 'Llevá la *luz* de _Joya_\u00a0puesta',
+      'hero.title': 'Llevá la *luz* de la _Joya_\u00a0puesta',
       'hero.lead': 'Un badge con 13 luces LED y 12 animaciones que manejás desde el celular. No es merch, es arte: queremos llegar al Fuego Austral con todos llevando la Joya puesta. Va al costo: tu aporte cubre la placa, la batería y la carcasa de tu badge, y nadie gana plata con esto.',
       'hero.cta': 'Quiero sumarme',
       'hero.caption': 'Modelo 3D del badge terminado. La carcasa todavía está en pruebas.',
@@ -239,7 +239,7 @@
     en: {
       'meta.title': 'Badge — Joya',
       'draft.banner': 'Draft: payment methods are not confirmed yet.',
-      'hero.title': 'Wear the *light* of _Joya_',
+      'hero.title': 'Wear the *light* of the _Joya_',
       'hero.lead': 'A badge with 13 LED lights and 12 animations you control from your phone. It is not merch, it is art: we want to get to Fuego Austral with everyone wearing the Joya. It goes at cost: your contribution covers the board, the battery and the shell of your badge, and nobody makes money from it.',
       'hero.cta': 'Count me in',
       'hero.caption': '3D model of the finished badge. The shell is still being tested.',
